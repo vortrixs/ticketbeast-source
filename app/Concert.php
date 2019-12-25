@@ -5,6 +5,7 @@ namespace App;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static Concert find(int $id)
@@ -31,6 +32,11 @@ class Concert extends Model
     protected $guarded = [];
 
     protected $dates = ['date'];
+
+    public function orders() : HasMany
+    {
+        return $this->hasMany(Order::class);
+    }
 
     /**
     * @return string
@@ -59,5 +65,17 @@ class Concert extends Model
     public function scopePublished(Builder $query) : Builder
     {
         return $query->whereNotNull('published_at');
+    }
+
+    public function orderTickets(string $email, int $ticketQuantity) : Order
+    {
+        /** @var Order $order */
+        $order = $this->orders()->create(['email' => $email]);
+
+        foreach (range(1, $ticketQuantity) as $i) {
+            $order->tickets()->create([]);
+        }
+
+        return $order;
     }
 }

@@ -3,15 +3,15 @@
 namespace Tests;
 
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
+use Illuminate\Foundation\Testing\TestResponse;
 
 abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
-    protected function setUp(): void
+    protected function assertValidationErrors(TestResponse $response, string $field) : void
     {
-        parent::setUp();
-
-        //$this->withoutExceptionHandling();
+        $response->assertStatus(422);
+        $this->assertArrayHasKey($field, $response->decodeResponseJson()['errors']);
     }
 }

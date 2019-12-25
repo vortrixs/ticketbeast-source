@@ -14,3 +14,5 @@
 use Illuminate\Support\Facades\Route;
 
 Route::get('/concerts/{id}', 'ConcertsController@show');
+
+Route::post('/concerts/{id}/orders', 'ConcertOrdersController@store');

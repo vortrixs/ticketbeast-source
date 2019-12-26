@@ -2,8 +2,10 @@
 
 namespace App;
 
+use App\Exceptions\NotEnoughTicketsException;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -33,33 +35,20 @@ class Concert extends Model
 
     protected $dates = ['date'];
 
+    /**
+     * @return HasMany|Order
+     */
     public function orders() : HasMany
     {
         return $this->hasMany(Order::class);
     }
 
     /**
-    * @return string
-    */
-    public function getDate() : string
-    {
-        return $this->date->format('F j, Y');
-    }
-
-    /**
-     * @return string
+     * @return HasMany|Ticket
      */
-    public function getTime() : string
+    public function tickets() : HasMany
     {
-        return $this->date->format('g:iA');
-    }
-
-    /**
-    * @return string
-    */
-    public function getTicketPrice() : string
-    {
-        return number_format($this->ticket_price / 100, 2);
+        return $this->hasMany(Ticket::class);
     }
 
     public function scopePublished(Builder $query) : Builder
@@ -67,15 +56,50 @@ class Concert extends Model
         return $query->whereNotNull('published_at');
     }
 
-    public function orderTickets(string $email, int $ticketQuantity) : Order
+    public function getDate() : string
     {
+        return $this->date->format('F j, Y');
+    }
+
+    public function getTime() : string
+    {
+        return $this->date->format('g:iA');
+    }
+
+    public function getTicketPrice() : string
+    {
+        return number_format($this->ticket_price / 100, 2);
+    }
+
+
+    public function orderTickets(string $email, int $quantity) : Order
+    {
+        /** @var Collection<Ticket> $tickets */
+        $tickets = $this->tickets()->available()->take($quantity)->get();
+
+        if ($tickets->count() < $quantity) {
+            throw new NotEnoughTicketsException;
+        }
+
         /** @var Order $order */
         $order = $this->orders()->create(['email' => $email]);
 
-        foreach (range(1, $ticketQuantity) as $i) {
-            $order->tickets()->create([]);
-        }
+        $order->tickets()->saveMany($tickets);
 
         return $order;
+    }
+
+    public function addTickets(int $quantity) : Concert
+    {
+        $this->tickets()->createMany(
+            array_fill(0, $quantity, [])
+        );
+
+        return $this;
+    }
+
+    public function getRemainingTickets()
+    {
+        return $this->tickets()->available()->count();
     }
 }

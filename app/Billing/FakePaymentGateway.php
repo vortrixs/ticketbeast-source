@@ -11,11 +11,9 @@ class FakePaymentGateway implements IPaymentGateway
      */
     private $charges;
 
-    public function __construct(Collection $collection = null)
+    public function __construct()
     {
-        $this->charges = null === $collection
-            ? collect()
-            : $collection;
+        $this->charges = collect();
     }
 
     public function getValidTestToken() : string
@@ -34,6 +32,8 @@ class FakePaymentGateway implements IPaymentGateway
             throw new PaymentFailedException;
         }
 
-        return new FakePaymentGateway($this->charges->add($amount));
+        $this->charges->add($amount);
+
+        return $this;
     }
 }

@@ -31,9 +31,9 @@ class ConcertOrdersController extends Controller
             'payment_token' => 'required'
         ]);
 
-        try {
-            $ticketQuantity = request('ticket_quantity');
+        $ticketQuantity = request('ticket_quantity');
 
+        try {
             /** @var Order $order */
             $order = $concert->orderTickets(request('email'), $ticketQuantity);
 
@@ -49,6 +49,6 @@ class ConcertOrdersController extends Controller
             return response()->json([], 422);
         }
 
-        return response()->json([], 201);
+        return response()->json($order->toArray(), 201);
     }
 }

@@ -19,7 +19,7 @@ class FakePaymentGatewayTest extends TestCase
 
         $gateway->charge(2500, $gateway->getValidTestToken());
 
-        $this->assertEquals(2500, $gateway->totalCharges());
+        $this->assertEquals(2500, $gateway->getTotalCharges());
     }
 
     /**

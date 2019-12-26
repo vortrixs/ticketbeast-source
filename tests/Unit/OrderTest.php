@@ -27,4 +27,23 @@ class OrderTest extends TestCase
 
         $this->assertEquals(10, $concert->getRemainingTickets());
     }
+
+    /**
+     * @test
+     */
+    public function converting_to_an_array()
+    {
+        /** @var Concert $concert */
+        $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 1200])->addTickets(5);
+
+        $order = $concert->orderTickets('foo@bar.com', 5);
+
+        $result = $order->toArray();
+
+        $this->assertEquals([
+            'email' => 'foo@bar.com',
+            'ticket_quantity' => 5,
+            'amount' => 5*1200,
+        ], $result);
+    }
 }

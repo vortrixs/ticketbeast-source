@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -22,6 +22,11 @@ class Order extends Model
         return $this->hasMany(Ticket::class);
     }
 
+    public function concert() : BelongsTo
+    {
+        return $this->belongsTo(Concert::class);
+    }
+
     /**
      * @throws \Exception If this.delete() fails
      */
@@ -33,5 +38,14 @@ class Order extends Model
         }
 
         $this->delete();
+    }
+
+    public function toArray()
+    {
+        return [
+            'email' => $this->email,
+            'ticket_quantity' => $this->tickets()->count(),
+            'amount' => $this->tickets()->count() * $this->concert()->first()->ticket_price
+        ];
     }
 }

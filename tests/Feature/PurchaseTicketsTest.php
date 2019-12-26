@@ -30,7 +30,7 @@ class PurchaseTicketsTest extends TestCase
 
     private function orderTickets(Concert $concert, array $params) : TestResponse
     {
-        return $this->json('POST', "/concerts/{$concert->id}/orders", $params);
+        return $this->postJson("/concerts/{$concert->id}/orders", $params);
     }
 
     /**
@@ -38,6 +38,8 @@ class PurchaseTicketsTest extends TestCase
      */
     public function customer_can_purchase_tickets_to_published_concerts()
     {
+        $this->withoutExceptionHandling();
+
         /** @var Concert $concert */
         $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 3250])->addTickets(3);
 
@@ -47,9 +49,16 @@ class PurchaseTicketsTest extends TestCase
             'payment_token' => $this->gateway->getValidTestToken(),
         ]);
 
-        $response->assertStatus(201);
+        $response->assertStatus(201)
+            ->assertJson(
+                [
+                    'email' => 'foo@bar.com',
+                    'ticket_quantity' => 3,
+                    'amount' => 3*3250,
+                ]
+            );
 
-        $this->assertEquals(9750, $this->gateway->totalCharges());
+        $this->assertEquals(9750, $this->gateway->getTotalCharges());
 
         /** @var Order $order */
         $this->assertOrderExistsFor($concert, 'foo@bar.com', $order);
@@ -155,7 +164,7 @@ class PurchaseTicketsTest extends TestCase
 
         $response->assertStatus(422);
 
-        $this->assertOrderDoesntExistsFor($concert, 'foo@bar.com');
+        $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
     }
 
     /**
@@ -174,7 +183,7 @@ class PurchaseTicketsTest extends TestCase
 
         $response->assertStatus(404);
         $this->assertEquals(0, $concert->orders()->count());
-        $this->assertEquals(0, $this->gateway->totalCharges());
+        $this->assertEquals(0, $this->gateway->getTotalCharges());
     }
 
     /**
@@ -195,9 +204,9 @@ class PurchaseTicketsTest extends TestCase
 
         $response->assertStatus(422);
 
-        $this->assertOrderDoesntExistsFor($concert, 'foo@bar.com');
+        $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
 
-        $this->assertEquals(0, $this->gateway->totalCharges());
+        $this->assertEquals(0, $this->gateway->getTotalCharges());
         $this->assertEquals('50', $concert->getRemainingTickets());
     }
 }

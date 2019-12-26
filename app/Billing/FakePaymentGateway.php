@@ -21,7 +21,7 @@ class FakePaymentGateway implements IPaymentGateway
         return 'valid-token';
     }
 
-    public function totalCharges() : int
+    public function getTotalCharges() : int
     {
         return $this->charges->sum();
     }

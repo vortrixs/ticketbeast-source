@@ -13,8 +13,7 @@ abstract class TestCase extends BaseTestCase
 
     protected function assertValidationErrors(TestResponse $response, string $field) : void
     {
-        $response->assertStatus(422);
-        $this->assertArrayHasKey($field, $response->decodeResponseJson()['errors']);
+        $response->assertStatus(422)->assertJsonValidationErrors($field);
     }
 
     protected function assertOrderExistsFor(Concert $concert, string $email, ?Order &$order = null) : void
@@ -24,7 +23,7 @@ abstract class TestCase extends BaseTestCase
         $this->assertNotNull($order);
     }
 
-    protected function assertOrderDoesntExistsFor(Concert $concert, string $email, ?Order &$order = null) : void
+    protected function assertOrderDoesntExistFor(Concert $concert, string $email, ?Order &$order = null) : void
     {
         $order = $concert->orders()->where('email', $email)->first();
 

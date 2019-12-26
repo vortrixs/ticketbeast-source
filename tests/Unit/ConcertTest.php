@@ -109,7 +109,7 @@ class ConcertTest extends TestCase
         try {
             $concert->orderTickets('foo@bar.com', 11);
         } catch (NotEnoughTicketsException $e) {
-            $this->assertOrderDoesntExistsFor($concert, 'foo@bar.com');
+            $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
 
             $this->assertEquals(10, $concert->getRemainingTickets());
 
@@ -132,7 +132,7 @@ class ConcertTest extends TestCase
         try {
             $concert->orderTickets('baz@bar.com', 3);
         } catch (NotEnoughTicketsException $e) {
-            $this->assertOrderDoesntExistsFor($concert, 'baz@bar.com');
+            $this->assertOrderDoesntExistFor($concert, 'baz@bar.com');
 
             $this->assertEquals(2, $concert->getRemainingTickets());
 

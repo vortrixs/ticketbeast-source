@@ -7,7 +7,6 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -93,5 +92,12 @@ class Concert extends Model
     public function countRemainingTickets() : int
     {
         return $this->tickets()->available()->count();
+    }
+
+    public function reserveTickets(int $quantity) : Collection
+    {
+        return $this->findAvailableTickets($quantity)->each(function (Ticket $ticket) {
+            $ticket->reserve();
+        });
     }
 }

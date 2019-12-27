@@ -11,6 +11,11 @@ class FakePaymentGateway implements IPaymentGateway
      */
     private $charges;
 
+    /**
+     * @var \Closure
+     */
+    private $beforeFirstChargeCallback;
+
     public function __construct()
     {
         $this->charges = collect();
@@ -28,6 +33,12 @@ class FakePaymentGateway implements IPaymentGateway
 
     public function charge(int $amount, string $token) : IPaymentGateway
     {
+        if (is_callable($this->beforeFirstChargeCallback)) {
+            $callback = $this->beforeFirstChargeCallback;
+            $this->beforeFirstChargeCallback = null;
+            $callback($this);
+        }
+
         if ($token != $this->getValidTestToken()) {
             throw new PaymentFailedException;
         }
@@ -35,5 +46,10 @@ class FakePaymentGateway implements IPaymentGateway
         $this->charges->add($amount);
 
         return $this;
+    }
+
+    public function beforeFirstCharge(\Closure $callback)
+    {
+        $this->beforeFirstChargeCallback = $callback;
     }
 }

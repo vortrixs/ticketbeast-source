@@ -3,6 +3,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  *
  * @property int order_id
  * @property int concert_id
+ * @property Carbon reserved_at
  */
 class Ticket extends Model
 {
@@ -35,7 +37,7 @@ class Ticket extends Model
 
     public function scopeAvailable(Builder $query) : Builder
     {
-        return $query->whereNull('order_id');
+        return $query->whereNull('order_id')->whereNull('reserved_at');
     }
 
     public function release()
@@ -46,5 +48,10 @@ class Ticket extends Model
     public function getPriceAttribute() : int
     {
         return $this->concert()->first()->ticket_price;
+    }
+
+    public function reserve()
+    {
+        $this->update(['reserved_at' => Carbon::now()]);
     }
 }

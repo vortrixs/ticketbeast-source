@@ -127,4 +127,64 @@ class ConcertTest extends TestCase
 
         $this->fail('Order succeeded even though there were not enough tickets remaining.');
     }
+
+    /**
+     * @test
+     */
+    public function can_reserve_available_tickets()
+    {
+        /** @var Concert $concert */
+        $concert = factory(Concert::class)->create()->addTickets(3);
+
+        $this->assertEquals(3, $concert->countRemainingTickets());
+
+        $reservedTickets = $concert->reserveTickets(2);
+
+        $this->assertCount(2, $reservedTickets);
+        $this->assertEquals(1, $concert->countRemainingTickets());
+    }
+
+    /**
+     * @test
+     */
+    public function cannot_reserve_tickets_that_have_already_been_purchased()
+    {
+        /** @var Concert $concert */
+        $concert = factory(Concert::class)->create()->addTickets(3);
+
+        $tickets = $concert->findAvailableTickets(2);
+
+        Order::forTickets($tickets, 'foo@bar.com', $tickets->sum('price'));
+
+        try {
+            $concert->reserveTickets(2);
+        } catch (\Exception $e) {
+            $this->assertEquals(1, $concert->countRemainingTickets());
+
+            return;
+        }
+
+        $this->fail('Reserving tickets succeeded even though the tickets were already sold.');
+    }
+
+    /**
+     * @test
+     */
+    public function cannot_reserve_tickets_that_have_already_been_reserved()
+    {
+        /** @var Concert $concert */
+        $concert = factory(Concert::class)->create()->addTickets(3);
+
+        $concert->reserveTickets(2);
+
+        try {
+            $concert->reserveTickets(2);
+        } catch (\Exception $e) {
+            $this->assertEquals(1, $concert->countRemainingTickets());
+
+            return;
+        }
+
+        $this->fail('Reserving tickets succeeded even though the tickets were already reserved.');
+    }
 }

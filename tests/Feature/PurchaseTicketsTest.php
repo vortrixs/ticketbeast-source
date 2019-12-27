@@ -30,7 +30,11 @@ class PurchaseTicketsTest extends TestCase
 
     private function orderTickets(Concert $concert, array $params) : TestResponse
     {
-        return $this->postJson("/concerts/{$concert->id}/orders", $params);
+        $savedRequest = $this->app['request'];
+        $response = $this->postJson("/concerts/{$concert->id}/orders", $params);
+        $this->app['request'] = $savedRequest;
+
+        return $response;
     }
 
     /**
@@ -206,5 +210,43 @@ class PurchaseTicketsTest extends TestCase
 
         $this->assertEquals(0, $this->gateway->getTotalCharges());
         $this->assertEquals(50, $concert->countRemainingTickets());
+    }
+
+    /**
+     * @test
+     */
+    public function cannot_purchase_tickets_another_customer_is_already_trying_to_purchase()
+    {
+        $this->withoutExceptionHandling();
+
+        /** @var Concert $concert */
+        $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 1200])->addTickets(3);
+
+        $this->gateway->beforeFirstCharge(function () use ($concert) {
+
+            $responseB = $this->orderTickets($concert, [
+                'email' => 'baz@bar.com',
+                'ticket_quantity' => 1,
+                'payment_token' => $this->gateway->getValidTestToken(),
+            ]);
+
+            $responseB->assertStatus(422);
+
+            $this->assertOrderDoesntExistFor($concert, 'baz@bar.com');
+            $this->assertEquals(0, $this->gateway->getTotalCharges());
+        });
+
+        $responseA = $this->orderTickets($concert, [
+            'email' => 'foo@bar.com',
+            'ticket_quantity' => 3,
+            'payment_token' => $this->gateway->getValidTestToken(),
+        ]);
+
+        $responseA->assertStatus(201);
+        $this->assertEquals(3*1200, $this->gateway->getTotalCharges());
+
+        /** @var Order $order */
+        $this->assertOrderExistsFor($concert, 'foo@bar.com', $order);
+        $this->assertEquals(3, $order->tickets()->count());
     }
 }

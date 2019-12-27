@@ -29,10 +29,9 @@ class Order extends Model
      */
     public function cancel() : void
     {
-        /** @var Ticket $ticket */
-        foreach ($this->tickets()->get() as $ticket) {
+        $this->tickets()->each(function (Ticket $ticket) {
             $ticket->release();
-        }
+        });
 
         $this->delete();
     }

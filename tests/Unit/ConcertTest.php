@@ -41,7 +41,7 @@ class ConcertTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->make(['ticket_price' => 6750]);
 
-        $this->assertEquals('67.50', $concert->getTicketPrice());
+        $this->assertEquals('67.50', $concert->getTicketPriceInDollars());
     }
 
     /**
@@ -63,26 +63,12 @@ class ConcertTest extends TestCase
     /**
      * @test
      */
-    public function can_order_concert_tickets()
-    {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create()->addTickets(3);
-
-        $order = $concert->orderTickets('foo@bar.com', 3);
-
-        $this->assertEquals('foo@bar.com', $order->email);
-        $this->assertEquals(3, $order->tickets()->count());
-    }
-
-    /**
-     * @test
-     */
     public function can_add_tickets()
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(50);
 
-        $this->assertEquals(50, $concert->getRemainingTickets());
+        $this->assertEquals(50, $concert->countRemainingTickets());
     }
 
     /**
@@ -93,9 +79,9 @@ class ConcertTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(50);
 
-        $concert->orderTickets('foo@bar.com', 30);
+        Order::forTickets($concert->findAvailableTickets(30), 'foo@bar.com', 30*$concert->ticket_price);
 
-        $this->assertEquals(20, $concert->getRemainingTickets());
+        $this->assertEquals(20, $concert->countRemainingTickets());
     }
 
     /**
@@ -107,11 +93,11 @@ class ConcertTest extends TestCase
         $concert = factory(Concert::class)->create()->addTickets(10);
 
         try {
-            $concert->orderTickets('foo@bar.com', 11);
+            Order::forTickets($concert->findAvailableTickets(11), 'foo@bar.com', 11*$concert->ticket_price);
         } catch (NotEnoughTicketsException $e) {
             $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
 
-            $this->assertEquals(10, $concert->getRemainingTickets());
+            $this->assertEquals(10, $concert->countRemainingTickets());
 
             return;
         }
@@ -127,14 +113,14 @@ class ConcertTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(10);
 
-        $concert->orderTickets('foo@bar.com', 8);
+        Order::forTickets($concert->findAvailableTickets(8), 'foo@bar.com', 8*$concert->ticket_price);
 
         try {
-            $concert->orderTickets('baz@bar.com', 3);
+            Order::forTickets($concert->findAvailableTickets(3), 'baz@bar.com', 3*$concert->ticket_price);
         } catch (NotEnoughTicketsException $e) {
             $this->assertOrderDoesntExistFor($concert, 'baz@bar.com');
 
-            $this->assertEquals(2, $concert->getRemainingTickets());
+            $this->assertEquals(2, $concert->countRemainingTickets());
 
             return;
         }

@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
@@ -35,12 +36,9 @@ class Concert extends Model
 
     protected $dates = ['date'];
 
-    /**
-     * @return HasMany|Order
-     */
-    public function orders() : HasMany
+    public function orders()
     {
-        return $this->hasMany(Order::class);
+        return $this->hasManyThrough(Order::class, Ticket::class, 'concert_id', 'id', 'id', 'order_id');
     }
 
     /**
@@ -66,13 +64,12 @@ class Concert extends Model
         return $this->date->format('g:iA');
     }
 
-    public function getTicketPrice() : string
+    public function getTicketPriceInDollars() : string
     {
         return number_format($this->ticket_price / 100, 2);
     }
 
-
-    public function orderTickets(string $email, int $quantity) : Order
+    public function findAvailableTickets(int $quantity) : Collection
     {
         /** @var Collection<Ticket> $tickets */
         $tickets = $this->tickets()->available()->take($quantity)->get();
@@ -81,12 +78,7 @@ class Concert extends Model
             throw new NotEnoughTicketsException;
         }
 
-        /** @var Order $order */
-        $order = $this->orders()->create(['email' => $email]);
-
-        $order->tickets()->saveMany($tickets);
-
-        return $order;
+        return $tickets;
     }
 
     public function addTickets(int $quantity) : Concert
@@ -98,7 +90,7 @@ class Concert extends Model
         return $this;
     }
 
-    public function getRemainingTickets()
+    public function countRemainingTickets() : int
     {
         return $this->tickets()->available()->count();
     }

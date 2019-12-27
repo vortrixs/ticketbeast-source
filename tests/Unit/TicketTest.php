@@ -21,8 +21,7 @@ class TicketTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->state('published')->create()->addTickets(1);
 
-        /** @var Order $order */
-        $order = $concert->orderTickets('foo@bar.com', 1);
+        $order = Order::forTickets($concert->findAvailableTickets(1), 'foo@bar.com', 2000);
 
         /** @var Ticket $ticket */
         $ticket = $order->tickets()->first();

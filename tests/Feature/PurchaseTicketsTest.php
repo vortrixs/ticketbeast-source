@@ -191,8 +191,6 @@ class PurchaseTicketsTest extends TestCase
      */
     public function cannot_purchase_more_tickets_than_remain()
     {
-        $this->withoutExceptionHandling();
-
         /** @var Concert $concert */
         $concert = factory(Concert::class)->state('published')->create()->addTickets(50);
 
@@ -207,6 +205,6 @@ class PurchaseTicketsTest extends TestCase
         $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
 
         $this->assertEquals(0, $this->gateway->getTotalCharges());
-        $this->assertEquals('50', $concert->getRemainingTickets());
+        $this->assertEquals(50, $concert->countRemainingTickets());
     }
 }

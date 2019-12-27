@@ -2,16 +2,18 @@
 
 namespace App;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @method static Order find(int $id)
+ * @method static create(array $data)
  *
  * @property string $email
  * @property int $id
  * @property int $concert_id
+ * @property int amount
  */
 class Order extends Model
 {
@@ -20,11 +22,6 @@ class Order extends Model
     public function tickets() : HasMany
     {
         return $this->hasMany(Ticket::class);
-    }
-
-    public function concert() : BelongsTo
-    {
-        return $this->belongsTo(Concert::class);
     }
 
     /**
@@ -45,7 +42,20 @@ class Order extends Model
         return [
             'email' => $this->email,
             'ticket_quantity' => $this->tickets()->count(),
-            'amount' => $this->tickets()->count() * $this->concert()->first()->ticket_price
+            'amount' => $this->amount
         ];
+    }
+
+    public static function forTickets(Collection $tickets, string $email, int $amount) : Order
+    {
+        /** @var Order $order */
+        $order = self::create([
+            'email' => $email,
+            'amount' => $amount,
+        ]);
+
+        $order->tickets()->saveMany($tickets);
+
+        return $order;
     }
 }

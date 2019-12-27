@@ -24,18 +24,6 @@ class Order extends Model
         return $this->hasMany(Ticket::class);
     }
 
-    /**
-     * @throws \Exception If this.delete() fails
-     */
-    public function cancel() : void
-    {
-        $this->tickets()->each(function (Ticket $ticket) {
-            $ticket->release();
-        });
-
-        $this->delete();
-    }
-
     public function toArray()
     {
         return [

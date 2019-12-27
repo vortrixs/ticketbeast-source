@@ -169,6 +169,7 @@ class PurchaseTicketsTest extends TestCase
         $response->assertStatus(422);
 
         $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
+        $this->assertEquals(3, $concert->countRemainingTickets());
     }
 
     /**

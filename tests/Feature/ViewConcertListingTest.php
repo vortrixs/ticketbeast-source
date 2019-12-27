@@ -4,7 +4,6 @@
 namespace Tests\Feature;
 
 use App\Concert;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Carbon\Carbon;
 use Tests\TestCase;

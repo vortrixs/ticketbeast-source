@@ -4,7 +4,6 @@
 namespace Tests\Unit\Billing;
 
 use App\Billing\FakePaymentGateway;
-use App\Billing\IPaymentGateway;
 use App\Billing\PaymentFailedException;
 use Tests\TestCase;
 

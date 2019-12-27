@@ -2,6 +2,7 @@
 
 namespace Tests\Unit;
 
+use App\Billing\FakePaymentGateway;
 use App\Concert;
 use App\Exceptions\NotEnoughTicketsException;
 use App\Order;
@@ -79,7 +80,9 @@ class ConcertTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(50);
 
-        Order::forTickets($concert->findAvailableTickets(30), 'foo@bar.com', 30*$concert->ticket_price);
+        $tickets = $concert->findAvailableTickets(30);
+
+        Order::forTickets($tickets, 'foo@bar.com', $tickets->sum('price'));
 
         $this->assertEquals(20, $concert->countRemainingTickets());
     }
@@ -93,7 +96,8 @@ class ConcertTest extends TestCase
         $concert = factory(Concert::class)->create()->addTickets(10);
 
         try {
-            Order::forTickets($concert->findAvailableTickets(11), 'foo@bar.com', 11*$concert->ticket_price);
+            $tickets = $concert->findAvailableTickets(11);
+            Order::forTickets($tickets, 'foo@bar.com', $tickets->sum('price'));
         } catch (NotEnoughTicketsException $e) {
             $this->assertOrderDoesntExistFor($concert, 'foo@bar.com');
 
@@ -112,11 +116,13 @@ class ConcertTest extends TestCase
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(10);
+        $tickets = $concert->findAvailableTickets(8);
 
-        Order::forTickets($concert->findAvailableTickets(8), 'foo@bar.com', 8*$concert->ticket_price);
+        Order::forTickets($tickets, 'foo@bar.com', $tickets->sum('price'));
 
         try {
-            Order::forTickets($concert->findAvailableTickets(3), 'baz@bar.com', 3*$concert->ticket_price);
+            $tickets = $concert->findAvailableTickets(8);
+            Order::forTickets($tickets, 'baz@bar.com', $tickets->sum('price'));
         } catch (NotEnoughTicketsException $e) {
             $this->assertOrderDoesntExistFor($concert, 'baz@bar.com');
 
@@ -135,12 +141,14 @@ class ConcertTest extends TestCase
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(3);
+        $paymentGateway = new FakePaymentGateway;
 
         $this->assertEquals(3, $concert->countRemainingTickets());
 
-        $reservedTickets = $concert->reserveTickets(2);
+        $order = $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getValidTestToken());
 
-        $this->assertCount(2, $reservedTickets);
+        $this->assertCount(2, $order->tickets()->get());
+        $this->assertEquals('foo@bar.com', $order->email);
         $this->assertEquals(1, $concert->countRemainingTickets());
     }
 
@@ -151,13 +159,12 @@ class ConcertTest extends TestCase
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(3);
+        $paymentGateway = new FakePaymentGateway;
 
-        $tickets = $concert->findAvailableTickets(2);
-
-        Order::forTickets($tickets, 'foo@bar.com', $tickets->sum('price'));
+        $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getValidTestToken());
 
         try {
-            $concert->reserveTickets(2);
+            $concert->reserveTickets(2, 'baz@bar.com');
         } catch (\Exception $e) {
             $this->assertEquals(1, $concert->countRemainingTickets());
 
@@ -175,10 +182,10 @@ class ConcertTest extends TestCase
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(3);
 
-        $concert->reserveTickets(2);
+        $concert->reserveTickets(2, 'foo@bar.com');
 
         try {
-            $concert->reserveTickets(2);
+            $concert->reserveTickets(2, 'baz@bar.com');
         } catch (\Exception $e) {
             $this->assertEquals(1, $concert->countRemainingTickets());
 

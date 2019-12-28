@@ -34,7 +34,7 @@ class FakePaymentGatewayTest extends TestCase
             return;
         }
 
-        $this->fail();
+        $this->fail('Charging with an invalid payment token did not throw a PaymentFailedException');
     }
 
     /**

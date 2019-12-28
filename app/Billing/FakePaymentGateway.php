@@ -31,7 +31,7 @@ class FakePaymentGateway implements IPaymentGateway
         return $this->charges->sum();
     }
 
-    public function charge(int $amount, string $token) : IPaymentGateway
+    public function charge(int $amount, string $token) : FakePaymentGateway
     {
         if (is_callable($this->beforeFirstChargeCallback)) {
             $callback = $this->beforeFirstChargeCallback;

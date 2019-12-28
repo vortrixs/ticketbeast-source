@@ -40,11 +40,21 @@ class StripePaymentGateway implements IPaymentGateway
     }
 
     /**
+     * @param array $cardData
+     * @return int
      * @throws \Stripe\Exception\ApiErrorException
-     *
-     * @return Token
      */
-    public function getToken(array $cardData) : Token
+    public function getToken(array $cardData = []) : string
+    {
+        return $this->createTokenObject($cardData)->id;
+    }
+
+    /**
+     * @param $cardData
+     * @return Token
+     * @throws \Stripe\Exception\ApiErrorException
+     */
+    public function createTokenObject($cardData)
     {
         return Token::create(['card' => $cardData], ['api_key' => $this->apiKey]);
     }

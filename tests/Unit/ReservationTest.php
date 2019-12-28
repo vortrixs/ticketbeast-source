@@ -64,7 +64,7 @@ class ReservationTest extends TestCase
         $reservation = new Reservation($tickets, 'foo@bar.com');
 
         /** @var Order $order */
-        $order = $reservation->complete($paymentGateway, $paymentGateway->getValidTestToken());
+        $order = $reservation->complete($paymentGateway, $paymentGateway->getToken());
 
         $this->assertOrderExistsFor($concert, $order->email);
         $this->assertEquals(3, $order->tickets()->count());

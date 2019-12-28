@@ -50,7 +50,7 @@ class PurchaseTicketsTest extends TestCase
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 3,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $response->assertStatus(201)
@@ -80,7 +80,7 @@ class PurchaseTicketsTest extends TestCase
 
         $response = $this->orderTickets($concert, [
             'ticket_quantity' => 3,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $this->assertValidationErrors($response, 'email');
@@ -97,7 +97,7 @@ class PurchaseTicketsTest extends TestCase
         $response = $this->orderTickets($concert, [
             'email' => 'not-a-valid-email',
             'ticket_quantity' => 3,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $this->assertValidationErrors($response, 'email');
@@ -113,7 +113,7 @@ class PurchaseTicketsTest extends TestCase
 
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $this->assertValidationErrors($response, 'ticket_quantity');
@@ -130,7 +130,7 @@ class PurchaseTicketsTest extends TestCase
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 0,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $this->assertValidationErrors($response, 'ticket_quantity');
@@ -183,7 +183,7 @@ class PurchaseTicketsTest extends TestCase
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 3,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $response->assertStatus(404);
@@ -202,7 +202,7 @@ class PurchaseTicketsTest extends TestCase
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 51,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $response->assertStatus(422);
@@ -228,7 +228,7 @@ class PurchaseTicketsTest extends TestCase
             $responseB = $this->orderTickets($concert, [
                 'email' => 'baz@bar.com',
                 'ticket_quantity' => 1,
-                'payment_token' => $this->gateway->getValidTestToken(),
+                'payment_token' => $this->gateway->getToken(),
             ]);
 
             $responseB->assertStatus(422);
@@ -240,7 +240,7 @@ class PurchaseTicketsTest extends TestCase
         $responseA = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 3,
-            'payment_token' => $this->gateway->getValidTestToken(),
+            'payment_token' => $this->gateway->getToken(),
         ]);
 
         $responseA->assertStatus(201);

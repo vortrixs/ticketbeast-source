@@ -21,17 +21,12 @@ class FakePaymentGateway implements IPaymentGateway
         $this->charges = collect();
     }
 
-    public function getValidTestToken() : string
+    public function getToken(array $params = []) : string
     {
         return 'valid-token';
     }
 
-    public function getTotalCharges() : int
-    {
-        return $this->charges->sum();
-    }
-
-    public function charge(int $amount, string $token) : FakePaymentGateway
+    public function charge(int $amount, string $token)
     {
         if (is_callable($this->beforeFirstChargeCallback)) {
             $callback = $this->beforeFirstChargeCallback;
@@ -39,17 +34,41 @@ class FakePaymentGateway implements IPaymentGateway
             $callback($this);
         }
 
-        if ($token != $this->getValidTestToken()) {
+        if ($token != $this->getToken()) {
             throw new PaymentFailedException;
         }
 
-        $this->charges->add($amount);
+        $this->updateState($amount);
 
-        return $this;
+        return $this->charges->last();
     }
+
 
     public function beforeFirstCharge(\Closure $callback)
     {
         $this->beforeFirstChargeCallback = $callback;
+    }
+
+    public function retrieveCharge($id) : \stdClass
+    {
+        $key = $this->charges->search(function ($item) use ($id) {
+            return $item->id === $id;
+        });
+
+        return $this->charges->get($key);
+    }
+
+    public function retrieveAllCharge() : Collection
+    {
+        return $this->charges;
+    }
+
+    private function updateState(int $amount)
+    {
+        $lastCharge = $this->charges->last();
+
+        $id = null === $lastCharge ? 1 : $lastCharge->id+1;
+
+        $this->charges->add((object) ['id' => $id, 'amount' => $amount]);
     }
 }

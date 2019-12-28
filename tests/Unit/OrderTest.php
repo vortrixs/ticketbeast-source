@@ -21,7 +21,7 @@ class OrderTest extends TestCase
         $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 1200])->addTickets(5);
         $paymentGateway = new FakePaymentGateway;
 
-        $order = $concert->reserveTickets(5, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getValidTestToken());
+        $order = $concert->reserveTickets(5, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getToken());
 
         $result = $order->toArray();
 

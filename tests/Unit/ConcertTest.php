@@ -145,7 +145,7 @@ class ConcertTest extends TestCase
 
         $this->assertEquals(3, $concert->countRemainingTickets());
 
-        $order = $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getValidTestToken());
+        $order = $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getToken());
 
         $this->assertCount(2, $order->tickets()->get());
         $this->assertEquals('foo@bar.com', $order->email);
@@ -161,7 +161,7 @@ class ConcertTest extends TestCase
         $concert = factory(Concert::class)->create()->addTickets(3);
         $paymentGateway = new FakePaymentGateway;
 
-        $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getValidTestToken());
+        $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getToken());
 
         try {
             $concert->reserveTickets(2, 'baz@bar.com');

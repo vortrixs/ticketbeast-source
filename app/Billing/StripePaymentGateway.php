@@ -2,7 +2,8 @@
 
 namespace App\Billing;
 
-use Stripe\Charge;
+use App\Billing\Charge;
+use Stripe\Charge as StripeCharge;
 use Stripe\Exception\InvalidRequestException;
 use Stripe\Token;
 
@@ -19,7 +20,7 @@ class StripePaymentGateway implements IPaymentGateway
     }
 
     /**
-     * @param int $amount
+     * @param int    $amount
      * @param string $token
      *
      * @throws \Stripe\Exception\ApiErrorException
@@ -29,11 +30,10 @@ class StripePaymentGateway implements IPaymentGateway
     public function charge(int $amount, string $token) : Charge
     {
         try {
-            return Charge::create([
-                'amount' => $amount,
-                'source' => $token,
-                'currency' => 'usd',
-            ], ['api_key' => $this->apiKey]);
+            /** @var StripeCharge $stripeCharge */
+            $stripeCharge = StripeCharge::create(['amount' => $amount, 'source' => $token,'currency' => 'usd',], ['api_key' => $this->apiKey]);
+
+            return new Charge(['amount' => $stripeCharge->amount, 'card_last_four' => $stripeCharge->source->last4]);
         } catch (InvalidRequestException $e) {
             throw new PaymentFailedException;
         }
@@ -57,17 +57,5 @@ class StripePaymentGateway implements IPaymentGateway
     public function createTokenObject($cardData)
     {
         return Token::create(['card' => $cardData], ['api_key' => $this->apiKey]);
-    }
-
-    /**
-     * @param string $guid
-     *
-     * @throws \Stripe\Exception\ApiErrorException
-     *
-     * @return Charge
-     */
-    public function retrieveCharge(string $guid) : Charge
-    {
-        return Charge::retrieve($guid, ['api_key' => $this->apiKey]);
     }
 }

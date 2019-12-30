@@ -4,7 +4,7 @@ namespace App\Billing;
 
 interface IPaymentGateway
 {
-    public function charge(int $amount, string $token);
+    public function charge(int $amount, string $token) : Charge;
 
-    public function getToken(array $params);
+    public function getToken(array $params) : string;
 }

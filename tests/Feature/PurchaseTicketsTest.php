@@ -6,6 +6,7 @@ namespace Tests\Feature;
 use App\Billing\FakePaymentGateway;
 use App\Billing\IPaymentGateway;
 use App\Concert;
+use App\IConfirmationNumberGenerator;
 use App\Order;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
@@ -44,6 +45,9 @@ class PurchaseTicketsTest extends TestCase
     {
         $this->withoutExceptionHandling();
 
+        $generator = \Mockery::mock(IConfirmationNumberGenerator::class, ['generate' => 'ORDER_CONFIRMATION_NUMBER_1234']);
+        $this->app->instance(IConfirmationNumberGenerator::class, $generator);
+
         /** @var Concert $concert */
         $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 3250])->addTickets(3);
 
@@ -59,6 +63,7 @@ class PurchaseTicketsTest extends TestCase
                     'email' => 'foo@bar.com',
                     'ticket_quantity' => 3,
                     'amount' => 3*3250,
+                    'confirmation_number' => 'ORDER_CONFIRMATION_NUMBER_1234',
                 ]
             );
 

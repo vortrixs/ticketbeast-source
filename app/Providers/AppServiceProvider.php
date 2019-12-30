@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Billing\IPaymentGateway;
 use App\Billing\StripePaymentGateway;
+use App\IConfirmationNumberGenerator;
+use App\RandomOrderConfirmationNumberGenerator;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->bind(IPaymentGateway::class, StripePaymentGateway::class);
+
+        $this->app->bind(IConfirmationNumberGenerator::class, RandomOrderConfirmationNumberGenerator::class);
     }
 
     /**

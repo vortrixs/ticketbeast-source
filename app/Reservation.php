@@ -31,8 +31,8 @@ class Reservation
 
     public function complete(IPaymentGateway $gateway, string $token) : Order
     {
-        $gateway->charge($this->getTotalAmount(), $token);
+        $charge = $gateway->charge($this->getTotalAmount(), $token);
 
-        return Order::forTickets($this->tickets, $this->email, $this->getTotalAmount());
+        return Order::forTickets($this->tickets, $this->email, $charge);
     }
 }

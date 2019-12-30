@@ -2,6 +2,8 @@
 
 namespace App;
 
+use App\Billing\Charge;
+use App\Facades\ConfirmationNumber;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -16,6 +18,7 @@ use Illuminate\Support\Collection;
  * @property int $id
  * @property int $concert_id
  * @property int amount
+ * @property string confirmation_number
  */
 class Order extends Model
 {
@@ -31,16 +34,19 @@ class Order extends Model
         return [
             'email' => $this->email,
             'ticket_quantity' => $this->tickets()->count(),
-            'amount' => $this->amount
+            'amount' => $this->amount,
+            'confirmation_number' => $this->confirmation_number,
         ];
     }
 
-    public static function forTickets(Collection $tickets, string $email, int $amount) : Order
+    public static function forTickets(Collection $tickets, string $email, Charge $charge) : Order
     {
         /** @var Order $order */
         $order = self::create([
             'email' => $email,
-            'amount' => $amount,
+            'amount' => $charge->getAmount(),
+            'confirmation_number' => ConfirmationNumber::generate(),
+            'card_last_four' => $charge->getCardLastFour(),
         ]);
 
         $order->tickets()->saveMany($tickets);

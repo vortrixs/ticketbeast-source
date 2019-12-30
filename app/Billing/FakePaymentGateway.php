@@ -3,6 +3,7 @@
 namespace App\Billing;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class FakePaymentGateway implements IPaymentGateway
 {
@@ -12,6 +13,11 @@ class FakePaymentGateway implements IPaymentGateway
     private $charges;
 
     /**
+     * @var Collection
+     */
+    private $tokens;
+
+    /**
      * @var \Closure
      */
     private $beforeFirstChargeCallback;
@@ -19,14 +25,24 @@ class FakePaymentGateway implements IPaymentGateway
     public function __construct()
     {
         $this->charges = collect();
+        $this->tokens = collect();
     }
 
-    public function getToken(array $params = []) : string
+    public function getToken(array $params = ['card_number' => 4242424242424242]) : string
     {
-        return 'valid-token';
+        $token = 'fake-tok_' . Str::random(24);
+        $this->tokens[$token] = $params['card_number'];
+
+        return $token;
     }
 
-    public function charge(int $amount, string $token)
+    /**
+     * @param int    $amount
+     * @param string $token
+     *
+     * @return \stdClass
+     */
+    public function charge(int $amount, string $token) : Charge
     {
         if (is_callable($this->beforeFirstChargeCallback)) {
             $callback = $this->beforeFirstChargeCallback;
@@ -34,13 +50,11 @@ class FakePaymentGateway implements IPaymentGateway
             $callback($this);
         }
 
-        if ($token != $this->getToken()) {
+        if (false === $this->tokens->has($token)) {
             throw new PaymentFailedException;
         }
 
-        $this->updateState($amount);
-
-        return $this->charges->last();
+        return $this->addCharge($amount, $token);
     }
 
 
@@ -49,26 +63,29 @@ class FakePaymentGateway implements IPaymentGateway
         $this->beforeFirstChargeCallback = $callback;
     }
 
-    public function retrieveCharge($id) : \stdClass
-    {
-        $key = $this->charges->search(function ($item) use ($id) {
-            return $item->id === $id;
-        });
-
-        return $this->charges->get($key);
-    }
-
-    public function retrieveAllCharge() : Collection
+    public function getCharges() : Collection
     {
         return $this->charges;
     }
 
-    private function updateState(int $amount)
+    public function getTotalCharges()
+    {
+        return $this->charges->sum('data.amount');
+    }
+
+    private function addCharge(int $amount, string $token)
     {
         $lastCharge = $this->charges->last();
 
-        $id = null === $lastCharge ? 1 : $lastCharge->id+1;
+        $charge = new Charge([
+            'amount' => $amount,
+            'card_last_four' => substr($this->tokens->get($token), -4),
+        ]);
 
-        $this->charges->add((object) ['id' => $id, 'amount' => $amount]);
+        $charge->id = null === $lastCharge ? 1 : $lastCharge->id+1;
+
+        $this->charges->add($charge);
+
+        return $charge;
     }
 }

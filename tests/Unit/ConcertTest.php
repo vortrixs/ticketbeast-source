@@ -90,7 +90,7 @@ class ConcertTest extends TestCase
     /**
      * @test
      */
-    public function trying_to_purchase_more_tickets_than_remain_throws_an_exception()
+    public function trying_to_purchase_more_tickets_than_are_available_throws_an_exception()
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(10);
@@ -141,14 +141,11 @@ class ConcertTest extends TestCase
     {
         /** @var Concert $concert */
         $concert = factory(Concert::class)->create()->addTickets(3);
-        $paymentGateway = new FakePaymentGateway;
 
         $this->assertEquals(3, $concert->countRemainingTickets());
 
-        $order = $concert->reserveTickets(2, 'foo@bar.com')->complete($paymentGateway, $paymentGateway->getToken());
+        $concert->reserveTickets(2, 'foo@bar.com');
 
-        $this->assertCount(2, $order->tickets()->get());
-        $this->assertEquals('foo@bar.com', $order->email);
         $this->assertEquals(1, $concert->countRemainingTickets());
     }
 

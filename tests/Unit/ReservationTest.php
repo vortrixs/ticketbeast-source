@@ -69,6 +69,6 @@ class ReservationTest extends TestCase
         $this->assertOrderExistsFor($concert, $order->email);
         $this->assertEquals(3, $order->tickets()->count());
         $this->assertEquals(3600, $order->amount);
-        $this->assertEquals(3600, $paymentGateway->getTotalCharges());
+        $this->assertEquals(3600, $paymentGateway->retrieveAllCharge()->sum('amount'));
     }
 }

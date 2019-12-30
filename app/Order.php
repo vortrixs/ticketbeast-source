@@ -2,13 +2,15 @@
 
 namespace App;
 
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 /**
  * @method static Order find(int $id)
- * @method static create(array $data)
+ * @method static Order create(array $data)
+ * @method static Builder where(string $string, string $confirmationNumber)
  *
  * @property string $email
  * @property int $id
@@ -44,5 +46,10 @@ class Order extends Model
         $order->tickets()->saveMany($tickets);
 
         return $order;
+    }
+
+    public static function findByConfirmationNumber(string $confirmationNumber)
+    {
+        return self::where('confirmation_number', $confirmationNumber)->firstOrFail();
     }
 }

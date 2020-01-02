@@ -33,9 +33,11 @@ class Order extends Model
     {
         return [
             'email' => $this->email,
-            'ticket_quantity' => $this->tickets()->count(),
             'amount' => $this->amount,
             'confirmation_number' => $this->confirmation_number,
+            'tickets' => $this->tickets()->get()->map(function ($ticket) {
+                return ['code' => $ticket->code];
+            })->all(),
         ];
     }
 
@@ -49,7 +51,7 @@ class Order extends Model
             'card_last_four' => $charge->getCardLastFour(),
         ]);
 
-        $order->tickets()->saveMany($tickets);
+        $tickets->each->claimFor($order);
 
         return $order;
     }

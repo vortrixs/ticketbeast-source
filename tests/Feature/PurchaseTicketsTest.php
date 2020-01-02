@@ -6,10 +6,14 @@ namespace Tests\Feature;
 use App\Billing\FakePaymentGateway;
 use App\Billing\IPaymentGateway;
 use App\Concert;
+use App\Facades\ConfirmationNumber;
+use App\Facades\TicketCode;
 use App\IConfirmationNumberGenerator;
+use App\Mail\OrderConfirmationEmail;
 use App\Order;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class PurchaseTicketsTest extends TestCase
@@ -43,10 +47,10 @@ class PurchaseTicketsTest extends TestCase
      */
     public function customer_can_purchase_tickets_to_published_concerts()
     {
-        $this->withoutExceptionHandling();
+        Mail::fake();
 
-        $generator = \Mockery::mock(IConfirmationNumberGenerator::class, ['generate' => 'ORDER_CONFIRMATION_NUMBER_1234']);
-        $this->app->instance(IConfirmationNumberGenerator::class, $generator);
+        ConfirmationNumber::shouldReceive('generate')->andReturn('ORDER_CONFIRMATION_NUMBER_1234');
+        TicketCode::shouldReceive('generateFor')->andReturn('TICKETCODE1', 'TICKETCODE2', 'TICKETCODE3');
 
         /** @var Concert $concert */
         $concert = factory(Concert::class)->state('published')->create(['ticket_price' => 3250])->addTickets(3);
@@ -61,9 +65,13 @@ class PurchaseTicketsTest extends TestCase
             ->assertJson(
                 [
                     'email' => 'foo@bar.com',
-                    'ticket_quantity' => 3,
                     'amount' => 3*3250,
                     'confirmation_number' => 'ORDER_CONFIRMATION_NUMBER_1234',
+                    'tickets' => [
+                        ['code' => 'TICKETCODE1'],
+                        ['code' => 'TICKETCODE2'],
+                        ['code' => 'TICKETCODE3'],
+                    ],
                 ]
             );
 
@@ -73,6 +81,11 @@ class PurchaseTicketsTest extends TestCase
         $this->assertOrderExistsFor($concert, 'foo@bar.com', $order);
 
         $this->assertEquals(3, $order->tickets()->count());
+
+        Mail::assertSent(OrderConfirmationEmail::class, function (OrderConfirmationEmail $mail) use ($order) {
+            return $mail->hasTo('foo@bar.com')
+                && $mail->order->id == $order->id;
+        });
     }
 
     /**

@@ -11,6 +11,13 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        \Mockery::getConfiguration()->allowMockingNonExistentMethods(false);
+    }
+
     protected function assertValidationErrors(TestResponse $response, string $field) : void
     {
         $response->assertStatus(422)->assertJsonValidationErrors($field);

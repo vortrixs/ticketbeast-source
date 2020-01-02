@@ -10,6 +10,8 @@ use App\Order;
 use App\Ticket;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Collection;
+use Mockery\MockInterface;
 use Tests\TestCase;
 
 class OrderTest extends TestCase
@@ -27,17 +29,23 @@ class OrderTest extends TestCase
             'confirmation_number' => 'ORDER_CONFIRMATION_NUMBER_1234',
         ]);
 
-        $order->tickets()->saveMany(
-            factory(Ticket::class)->times(5)->create()
-        );
+        $order->tickets()->saveMany([
+            factory(Ticket::class)->create(['code' => 'TICKETCODE1']),
+            factory(Ticket::class)->create(['code' => 'TICKETCODE2']),
+            factory(Ticket::class)->create(['code' => 'TICKETCODE3']),
+        ]);
 
         $result = $order->toArray();
 
         $this->assertEquals([
             'confirmation_number' => 'ORDER_CONFIRMATION_NUMBER_1234',
             'email' => 'foo@bar.com',
-            'ticket_quantity' => 5,
             'amount' => 6000,
+            'tickets' => [
+                ['code' => 'TICKETCODE1'],
+                ['code' => 'TICKETCODE2'],
+                ['code' => 'TICKETCODE3'],
+            ],
         ], $result);
     }
 
@@ -46,15 +54,19 @@ class OrderTest extends TestCase
      */
     public function creating_an_order_from_tickets_email_and_charge()
     {
-        $tickets = factory(Ticket::class)->times(3)->create();
         $charge = new Charge(['amount' => 3600, 'card_last_four' => 1234]);
+        $tickets = collect([
+            \Mockery::spy(Ticket::class),
+            \Mockery::spy(Ticket::class),
+            \Mockery::spy(Ticket::class),
+        ]);
 
         $order = Order::forTickets($tickets, 'foo@bar.com', $charge);
 
         $this->assertEquals('foo@bar.com', $order->email);
-        $this->assertEquals(3, $order->tickets()->count());
         $this->assertEquals(3600, $order->amount);
         $this->assertEquals(1234, $order->card_last_four);
+        $tickets->each->shouldHaveReceived('claimFor', [$order]);
     }
 
     /**

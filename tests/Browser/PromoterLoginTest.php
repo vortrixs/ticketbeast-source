@@ -6,6 +6,7 @@ namespace Tests\Browser;
 
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Auth;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 
@@ -50,5 +51,20 @@ class PromoterLoginTest extends DuskTestCase
                 ->assertPathIs('/login')
                 ->assertSee('credentials do not match');
         });
+    }
+
+    /**
+     * @test
+     */
+    public function logging_out_the_current_user()
+    {
+        $this->withoutExceptionHandling();
+
+        Auth::login(factory(User::class)->create());
+
+        $response = $this->post('/logout');
+
+        $response->assertRedirect('login');
+        $this->assertFalse(Auth::check());
     }
 }

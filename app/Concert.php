@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder whereNotNull(string $string)
  * @method static Concert findOrFail(int $id)
  * @method static Builder published()
+ * @method static Concert first()
+ * @method static int count()
  *
  * @property int $id
  * @property string $title

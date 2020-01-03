@@ -13,11 +13,19 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::get('/concerts/{id}', 'ConcertsController@show');
+Route::get('/concerts/{id}', 'ConcertsController@show')->name('concerts.show');
 
 Route::post('/concerts/{id}/orders', 'ConcertOrdersController@store');
 
 Route::get('orders/{confirmationNumber}', 'OrdersController@show');
 
-Route::get('/login', 'Auth\LoginController@show');
+Route::get('/login', 'Auth\LoginController@show')->name('login');
 Route::post('/login', 'Auth\LoginController@login');
+
+Route::post('/logout', 'Auth\LoginController@logout');
+
+Route::group(['middleware' => 'auth', 'prefix' => 'backstage', 'namespace' => 'Backstage'], function () {
+    Route::get('/concerts/new', 'ConcertsController@create');
+
+    Route::post('/concerts', 'ConcertsController@store');
+});

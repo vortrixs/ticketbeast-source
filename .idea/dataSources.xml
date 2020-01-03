@@ -7,5 +7,17 @@
       <jdbc-driver>com.mysql.jdbc.Driver</jdbc-driver>
       <jdbc-url>jdbc:mysql://localhost:3306/tdl</jdbc-url>
     </data-source>
+    <data-source source="LOCAL" name="database-dusk.sqlite" uuid="ab5a20aa-323a-43ba-961c-f8892599fa36">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/database/database-dusk.sqlite</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="database.sqlite" uuid="48794364-41a3-4e53-b7e1-e861e43cca2a">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/database/database.sqlite</jdbc-url>
+    </data-source>
   </component>
 </project>

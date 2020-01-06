@@ -16,6 +16,10 @@ abstract class TestCase extends BaseTestCase
         parent::setUp();
 
         \Mockery::getConfiguration()->allowMockingNonExistentMethods(false);
+
+        TestResponse::macro('data', function (string $key) {
+            return $this->getOriginalContent()->getData()[$key];
+        });
     }
 
     protected function assertValidationErrors(TestResponse $response, string $field) : void

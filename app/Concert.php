@@ -30,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $zip
  * @property string $additional_information
  * @property Carbon|null $published_at
+ * @property int $ticket_quantity
  */
 class Concert extends Model
 {

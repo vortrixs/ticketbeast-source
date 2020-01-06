@@ -3,6 +3,7 @@
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
 
 use App\Concert;
+use App\User;
 use Carbon\Carbon;
 use Faker\Generator as Faker;
 
@@ -18,6 +19,7 @@ $factory->define(Concert::class, function (Faker $faker) {
         'state' => 'ON',
         'zip' => '90210',
         'additional_information' => 'Some sample additional information.',
+        'user_id' => function () { return factory(User::class)->create()->id; },
     ];
 });
 

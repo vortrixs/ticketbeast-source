@@ -55,6 +55,11 @@ class Concert extends Model
         return $query->whereNotNull('published_at');
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     public function getDate() : string
     {
         return $this->date->format('F j, Y');
@@ -103,5 +108,17 @@ class Concert extends Model
         });
 
         return new Reservation($tickets, $email);
+    }
+
+    public function isPublished() : bool
+    {
+        return $this->published_at !== null;
+    }
+
+    public function publish() : Concert
+    {
+        $this->update(['published_at' => $this->freshTimestamp()]);
+
+        return $this;
     }
 }

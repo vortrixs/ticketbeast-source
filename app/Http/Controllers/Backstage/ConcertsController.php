@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backstage;
 use App\Concert;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 /**
@@ -21,9 +22,18 @@ class ConcertsController extends Controller
     {
         $this->validate(request(), [
             'title' => 'required',
+            'date' => 'required|date',
+            'time' => 'required|date_format:g:iA',
+            'venue' => 'required',
+            'venue_address' => 'required',
+            'city' => 'required',
+            'state' => 'required',
+            'zip' => 'required',
+            'ticket_price' => 'required|numeric|min:5',
+            'ticket_quantity' => 'required|integer|min:1',
         ]);
 
-        $concert = Concert::create([
+        $concert = Auth::user()->concerts()->create([
             'title' => request('title'),
             'subtitle' => request('subtitle'),
             'date' => Carbon::parse(vsprintf('%s %s', [request('date'), request('time')])),
@@ -34,7 +44,9 @@ class ConcertsController extends Controller
             'state' => request('state'),
             'zip' => request('zip'),
             'additional_information' => request('additional_information'),
-        ])->addTickets(request('ticket_quantity'));
+        ])
+            ->addTickets(request('ticket_quantity'))
+            ->publish();
 
         return redirect()->route('concerts.show', $concert);
     }

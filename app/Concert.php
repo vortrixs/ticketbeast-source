@@ -142,4 +142,9 @@ class Concert extends Model
     {
         return $this->orders()->sum('amount')/100;
     }
+
+    public function attendeeMessages()
+    {
+        return $this->hasMany(AttendeeMessage::class);
+    }
 }

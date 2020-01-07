@@ -40,4 +40,12 @@ abstract class TestCase extends BaseTestCase
 
         $this->assertNull($order);
     }
+
+    public static function assertArraySubset($subset, $array, bool $checkForObjectIdentity = false, string $message = ''): void
+    {
+        array_walk($subset, function ($value, $key) use ($array) {
+            self::assertArrayHasKey($key, $array);
+            self::assertEquals($value, $array[$key]);
+        });
+    }
 }

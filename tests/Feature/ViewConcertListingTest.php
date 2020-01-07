@@ -4,6 +4,7 @@
 namespace Tests\Feature;
 
 use App\Concert;
+use Factories\ConcertFactory;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -51,7 +52,7 @@ class ViewConcertListingTest extends TestCase
      */
     public function user_cannot_view_unpublished_concert_listings()
     {
-        $concert = factory(Concert::class)->state('unpublished')->create();
+        $concert = ConcertFactory::createUnpublished();
 
         $response = $this->get('/concerts/' . $concert->id);
 

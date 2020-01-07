@@ -70,8 +70,7 @@ class AddConcertTest extends TestCase
      */
     public function adding_a_valid_concert()
     {
-        $this->withoutExceptionHandling();
-
+        /** @var User $user */
         $user = factory(User::class)->create();
 
         $response = $this->actingAs($user)->post('/backstage/concerts', [
@@ -91,11 +90,11 @@ class AddConcertTest extends TestCase
 
         tap(Concert::first(), function (Concert $concert) use ($response, $user) {
             $response->assertStatus(302);
-            $response->assertRedirect("/concerts/{$concert->id}");
+            $response->assertRedirect('/backstage/concerts');
 
             $this->assertTrue($concert->user()->first()->is($user));
 
-            $this->assertTrue($concert->isPublished());
+            $this->assertFalse($concert->isPublished());
 
             $this->assertEquals('No Warning', $concert->title);
             $this->assertEquals('with Cruel Hand and Backtrack', $concert->subtitle);
@@ -107,7 +106,8 @@ class AddConcertTest extends TestCase
             $this->assertEquals('ON', $concert->state);
             $this->assertEquals('12345', $concert->zip);
             $this->assertEquals(3250, $concert->ticket_price);
-            $this->assertEquals(75, $concert->countRemainingTickets());
+            $this->assertEquals(75, $concert->ticket_quantity);
+            $this->assertEquals(0, $concert->countRemainingTickets());
         });
     }
 
@@ -150,7 +150,7 @@ class AddConcertTest extends TestCase
 
         tap(Concert::first(), function (Concert $concert) use ($response) {
             $response->assertStatus(302);
-            $response->assertRedirect("/concerts/{$concert->id}");
+            $response->assertRedirect('backstage/concerts');
 
             $this->assertNull($concert->subtitle);
         });
@@ -170,7 +170,7 @@ class AddConcertTest extends TestCase
 
         tap(Concert::first(), function (Concert $concert) use ($response) {
             $response->assertStatus(302);
-            $response->assertRedirect("/concerts/{$concert->id}");
+            $response->assertRedirect('/backstage/concerts');
 
             $this->assertNull($concert->additional_information);
         });

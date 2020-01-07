@@ -88,7 +88,7 @@ class Concert extends Model
         return $tickets;
     }
 
-    public function addTickets(int $quantity) : Concert
+    private function addTickets(int $quantity) : Concert
     {
         $this->tickets()->createMany(
             array_fill(0, $quantity, [])
@@ -120,6 +120,6 @@ class Concert extends Model
     {
         $this->update(['published_at' => $this->freshTimestamp()]);
 
-        return $this;
+        return $this->addTickets($this->ticket_quantity);
     }
 }

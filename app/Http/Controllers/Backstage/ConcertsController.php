@@ -34,7 +34,7 @@ class ConcertsController extends Controller
             'ticket_quantity' => 'required|integer|min:1',
         ]);
 
-        $concert = Auth::user()->concerts()->create([
+        Auth::user()->concerts()->create([
             'title' => request('title'),
             'subtitle' => request('subtitle'),
             'date' => Carbon::parse(vsprintf('%s %s', [request('date'), request('time')])),
@@ -45,16 +45,19 @@ class ConcertsController extends Controller
             'state' => request('state'),
             'zip' => request('zip'),
             'additional_information' => request('additional_information'),
-        ])
-            ->addTickets(request('ticket_quantity'))
-            ->publish();
+            'ticket_quantity' => request('ticket_quantity'),
+        ]);
 
-        return redirect()->route('concerts.show', $concert);
+        return redirect()->route('backstage.concerts.index');
     }
 
     public function index()
     {
-        return view('backstage.concerts.index', ['concerts' => Auth::user()->concerts()->get()]);
+        return view('backstage.concerts.index', [
+            'concerts' => Auth::user()->concerts()->get(),
+            'published_concerts' => Auth::user()->concerts()->get()->filter->isPublished(),
+            'unpublished_concerts' => Auth::user()->concerts()->get()->reject->isPublished(),
+        ]);
     }
 
     public function edit(int $concertId)

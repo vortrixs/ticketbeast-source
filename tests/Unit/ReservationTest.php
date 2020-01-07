@@ -8,6 +8,7 @@ use App\Concert;
 use App\Order;
 use App\Reservation;
 use App\Ticket;
+use Factories\ConcertFactory;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Mockery\MockInterface;
 use Tests\TestCase;
@@ -57,8 +58,7 @@ class ReservationTest extends TestCase
      */
     public function completing_a_reservation()
     {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create(['ticket_price' => 1200])->addTickets(3);
+        $concert = ConcertFactory::createPublished(['ticket_price' => 1200, 'ticket_quantity' => 3]);
         $tickets = $concert->findAvailableTickets(3);
         $paymentGateway = new FakePaymentGateway;
         $reservation = new Reservation($tickets, 'foo@bar.com');

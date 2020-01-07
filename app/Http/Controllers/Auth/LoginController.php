@@ -21,7 +21,7 @@ class LoginController extends Controller
                 ->exceptInput('password');
         }
 
-        return redirect('/backstage/concerts/new');
+        return redirect('/backstage/concerts');
     }
 
     public function show()

@@ -2,13 +2,11 @@
 
 namespace Tests\Unit;
 
-use App\Billing\Charge;
-use App\Billing\FakePaymentGateway;
 use App\Concert;
 use App\Exceptions\NotEnoughTicketsException;
-use App\Order;
 use App\Ticket;
 use Carbon\Carbon;
+use Factories\ConcertFactory;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Tests\TestCase;
 
@@ -52,9 +50,9 @@ class ConcertTest extends TestCase
      */
     public function concerts_with_a_published_at_date_are_published()
     {
-        $publishedConcertA = factory(Concert::class)->state('published')->create();
-        $publishedConcertB = factory(Concert::class)->state('published')->create();
-        $publishedConcertC = factory(Concert::class)->state('unpublished')->create();
+        $publishedConcertA = ConcertFactory::createPublished();
+        $publishedConcertB = ConcertFactory::createPublished();
+        $publishedConcertC = ConcertFactory::createUnpublished();
 
         $publishedConcerts = Concert::published()->get();
 
@@ -68,25 +66,15 @@ class ConcertTest extends TestCase
      */
     public function concerts_can_be_published()
     {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->state('unpublished')->create();
+        $concert = ConcertFactory::createUnpublished(['ticket_quantity' => 5]);
 
         $this->assertFalse($concert->isPublished());
+        $this->assertEquals(0, $concert->countRemainingTickets());
 
         $concert->publish();
 
         $this->assertTrue($concert->isPublished());
-    }
-
-    /**
-     * @test
-     */
-    public function can_add_tickets()
-    {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create()->addTickets(50);
-
-        $this->assertEquals(50, $concert->countRemainingTickets());
+        $this->assertEquals(5, $concert->countRemainingTickets());
     }
 
     /**
@@ -107,8 +95,7 @@ class ConcertTest extends TestCase
      */
     public function can_reserve_available_tickets()
     {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create()->addTickets(3);
+        $concert = ConcertFactory::createPublished(['ticket_quantity' => 3]);
 
         $this->assertEquals(3, $concert->countRemainingTickets());
 
@@ -143,8 +130,7 @@ class ConcertTest extends TestCase
      */
     public function cannot_reserve_tickets_that_have_already_been_reserved()
     {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create()->addTickets(3);
+        $concert = ConcertFactory::createPublished(['ticket_quantity' => 3]);
 
         $concert->reserveTickets(2, 'foo@bar.com');
 
@@ -164,8 +150,7 @@ class ConcertTest extends TestCase
      */
     public function cannot_reserve_more_tickets_than_are_available()
     {
-        /** @var Concert $concert */
-        $concert = factory(Concert::class)->create()->addTickets(10);
+        $concert = ConcertFactory::createPublished(['ticket_quantity' => 10]);
 
         try {
             $concert->reserveTickets(11, 'foo@bar.com');

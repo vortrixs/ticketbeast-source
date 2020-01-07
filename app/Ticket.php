@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * @method Builder available()
+ * @method Builder sold()
  *
  * @property int order_id
  * @property int concert_id
@@ -39,6 +40,11 @@ class Ticket extends Model
     public function scopeAvailable(Builder $query) : Builder
     {
         return $query->whereNull('order_id')->whereNull('reserved_at');
+    }
+
+    public function scopeSold(Builder $query) : Builder
+    {
+        return $query->whereNotNull('order_id');
     }
 
     public function release()

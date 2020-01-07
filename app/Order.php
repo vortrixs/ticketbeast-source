@@ -13,6 +13,7 @@ use Illuminate\Support\Collection;
  * @method static Order find(int $id)
  * @method static Order create(array $data)
  * @method static Builder where(string $string, string $confirmationNumber)
+ * @method static Builder whereIn(string $column, $values)
  *
  * @property string $email
  * @property int $id

@@ -40,7 +40,7 @@ class Concert extends Model
 
     public function orders()
     {
-        return $this->hasManyThrough(Order::class, Ticket::class, 'concert_id', 'id', 'id', 'order_id');
+        return Order::whereIn('id', $this->tickets()->pluck('order_id'));
     }
 
     /**
@@ -121,5 +121,25 @@ class Concert extends Model
         $this->update(['published_at' => $this->freshTimestamp()]);
 
         return $this->addTickets($this->ticket_quantity);
+    }
+
+    public function countTicketsSold() : int
+    {
+        return $this->tickets()->sold()->count();
+    }
+
+    public function countTotalTickets() : int
+    {
+        return $this->tickets()->count();
+    }
+
+    public function percentTicketsSold() : float
+    {
+        return number_format(($this->countTicketsSold() / $this->countTotalTickets())*100, 2);
+    }
+
+    public function revenueInDollars()
+    {
+        return $this->orders()->sum('amount')/100;
     }
 }

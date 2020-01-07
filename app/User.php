@@ -40,6 +40,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * @return Concert|\Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function concerts()
     {
         return $this->hasMany(Concert::class);

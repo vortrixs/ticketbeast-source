@@ -4,8 +4,10 @@ namespace Tests;
 
 use App\Concert;
 use App\Order;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
 use Illuminate\Foundation\Testing\TestResponse;
+use PHPUnit\Framework\Assert;
 
 abstract class TestCase extends BaseTestCase
 {
@@ -19,6 +21,28 @@ abstract class TestCase extends BaseTestCase
 
         TestResponse::macro('data', function (string $key) {
             return $this->getOriginalContent()->getData()[$key];
+        });
+
+        Collection::macro('assertContains', function ($value) {
+            Assert::assertTrue(
+                $this->contains($value),
+                'Failed asserting that the collection contained the specified value.'
+            );
+        });
+
+        Collection::macro('assertNotContains', function ($value) {
+            Assert::assertFalse(
+                $this->contains($value),
+                'Failed asserting that the collection did not contain the specified value.'
+            );
+        });
+
+        Collection::macro('assertEquals', function ($items) {
+            Assert::assertCount(count($this), $items);
+            $this->zip($items)->each(function ($pair) {
+                list($a, $b) = $pair;
+                Assert::assertTrue($a->is($b));
+            });
         });
     }
 

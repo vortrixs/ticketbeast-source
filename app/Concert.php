@@ -18,19 +18,20 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Concert first()
  * @method static int count()
  *
- * @property int $id
- * @property string $title
- * @property string $subtitle
- * @property Carbon $date
- * @property int $ticket_price
- * @property string $venue
- * @property string $venue_address
- * @property string $city
- * @property string $state
- * @property string $zip
- * @property string $additional_information
- * @property Carbon|null $published_at
- * @property int $ticket_quantity
+ * @property int id
+ * @property string title
+ * @property string|null subtitle
+ * @property Carbon date
+ * @property int ticket_price
+ * @property string venue
+ * @property string venue_address
+ * @property string city
+ * @property string state
+ * @property string zip
+ * @property string|null additional_information
+ * @property Carbon|null published_at
+ * @property int ticket_quantity
+ * @property string|null poster_image_path
  */
 class Concert extends Model
 {

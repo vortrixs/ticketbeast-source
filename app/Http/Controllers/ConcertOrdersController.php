@@ -10,6 +10,7 @@ use App\Mail\OrderConfirmationEmail;
 use App\Order;
 use App\Reservation;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
 
 class ConcertOrdersController extends Controller
@@ -43,11 +44,11 @@ class ConcertOrdersController extends Controller
         } catch (PaymentFailedException $e) {
             $reservation->cancel();
 
-            return response()->json([], 422);
+            return response()->json([], Response::HTTP_UNPROCESSABLE_ENTITY);
         } catch (NotEnoughTicketsException $e) {
-            return response()->json([], 422);
+            return response()->json([], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        return response()->json($order->toArray(), 201);
+        return response()->json($order->toArray(), Response::HTTP_CREATED);
     }
 }

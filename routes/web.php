@@ -19,10 +19,18 @@ Route::post('/concerts/{id}/orders', 'ConcertOrdersController@store');
 
 Route::get('orders/{confirmationNumber}', 'OrdersController@show');
 
-Route::get('/login', 'Auth\LoginController@show')->name('login');
-Route::post('/login', 'Auth\LoginController@login');
 
-Route::post('/logout', 'Auth\LoginController@logout');
+Route::group(['namespace' => 'Auth'], function () {
+    Route::get('/login', 'LoginController@show')->name('login');
+    Route::post('/login', 'LoginController@login');
+
+    Route::post('/logout', 'LoginController@logout');
+
+    Route::post('/register', 'RegisterController@register')->name('register');
+});
+
+Route::get('/invitation/{code}', 'InvitationController@show')->name('invitation.show');
+
 
 Route::group(['middleware' => 'auth', 'prefix' => 'backstage', 'namespace' => 'Backstage'], function () {
     Route::get('/concerts', 'ConcertsController@index')->name('backstage.concerts.index');

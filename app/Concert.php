@@ -17,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @method static Builder published()
  * @method static Concert first()
  * @method static int count()
+ * @method static Concert firstOrFail()
  *
  * @property int id
  * @property string title
@@ -147,5 +148,10 @@ class Concert extends Model
     public function attendeeMessages()
     {
         return $this->hasMany(AttendeeMessage::class);
+    }
+
+    public function hasPoster() : bool
+    {
+        return null !== $this->poster_image_path;
     }
 }

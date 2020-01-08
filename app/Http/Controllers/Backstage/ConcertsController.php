@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Backstage;
 
 use App\Concert;
+use App\Events\ConcertAdded;
 use App\Http\Controllers\Controller;
 use App\NullObject;
 use Carbon\Carbon;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use phpDocumentor\Reflection\Types\Nullable;
 
@@ -34,10 +36,10 @@ class ConcertsController extends Controller
             'zip' => 'required',
             'ticket_price' => 'required|numeric|min:5',
             'ticket_quantity' => 'required|integer|min:1',
-            'poster_image' => 'nullable|image|dimensions:min_width=400,ratio=8.5/11',
+            'poster_image' => 'nullable|image|dimensions:min_width=600,ratio=8.5/11',
         ]);
 
-        Auth::user()->concerts()->create([
+        $concert = Auth::user()->concerts()->create([
             'title' => request('title'),
             'subtitle' => request('subtitle'),
             'date' => Carbon::parse(vsprintf('%s %s', [request('date'), request('time')])),
@@ -49,8 +51,10 @@ class ConcertsController extends Controller
             'zip' => request('zip'),
             'additional_information' => request('additional_information'),
             'ticket_quantity' => request('ticket_quantity'),
-            'poster_image_path' => request('poster_image', new  NullObject)->store('posters', 's3'),
+            'poster_image_path' => request('poster_image', new  NullObject)->store('posters', env('POSTER_IMAGE_FILE_STORAGE')),
         ]);
+
+        ConcertAdded::dispatch($concert, Storage::disk(env('POSTER_IMAGE_FILE_STORAGE')));
 
         return redirect()->route('backstage.concerts.index');
     }

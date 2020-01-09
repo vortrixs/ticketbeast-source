@@ -6,11 +6,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 
-/**
- * @method static AttendeeMessage first()
- * @method static int count()
- * @method static AttendeeMessage create(array $array)
- */
 class AttendeeMessage extends Model
 {
     protected $guarded = [];

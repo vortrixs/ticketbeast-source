@@ -9,31 +9,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * @method static Concert find(int $id)
- * @method static Concert create(array $array)
- * @method static Builder whereNotNull(string $string)
- * @method static Concert findOrFail(int $id)
- * @method static Builder published()
- * @method static Concert first()
- * @method static int count()
- * @method static Concert firstOrFail()
- *
- * @property int id
- * @property string title
- * @property string|null subtitle
- * @property Carbon date
- * @property int ticket_price
- * @property string venue
- * @property string venue_address
- * @property string city
- * @property string state
- * @property string zip
- * @property string|null additional_information
- * @property Carbon|null published_at
- * @property int ticket_quantity
- * @property string|null poster_image_path
- */
 class Concert extends Model
 {
     protected $guarded = [];

@@ -2,7 +2,9 @@
 
 namespace App;
 
+use App\Mail\InvitationEmail;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Mail;
 
 class Invitation extends Model
 {
@@ -26,5 +28,10 @@ class Invitation extends Model
     public function useForUser(User $user)
     {
         $this->update(['user_id' => $user->id]);
+    }
+
+    public function send()
+    {
+        Mail::to($this->email)->send(new InvitationEmail($this));
     }
 }

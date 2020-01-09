@@ -3,9 +3,7 @@
 
 namespace App;
 
-use Illuminate\Support\Str;
-
-class RandomOrderConfirmationNumberGenerator implements IConfirmationNumberGenerator
+class RandomOrderConfirmationNumberGenerator implements IConfirmationNumberGenerator, IInvitationCodeGenerator
 {
     public function generate(): string
     {

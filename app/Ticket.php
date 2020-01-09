@@ -9,14 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/**
- * @method Builder available()
- * @method Builder sold()
- *
- * @property int order_id
- * @property int concert_id
- * @property Carbon reserved_at
- */
 class Ticket extends Model
 {
     protected $guarded = [];

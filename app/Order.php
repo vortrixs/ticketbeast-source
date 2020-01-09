@@ -9,18 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
-/**
- * @method static Order find(int $id)
- * @method static Order create(array $data)
- * @method static Builder where(string $string, string $confirmationNumber)
- * @method static Builder whereIn(string $column, $values)
- *
- * @property string $email
- * @property int $id
- * @property int $concert_id
- * @property int amount
- * @property string confirmation_number
- */
 class Order extends Model
 {
     protected $guarded = [];

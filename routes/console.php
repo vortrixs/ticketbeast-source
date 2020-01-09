@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-
 /*
 |--------------------------------------------------------------------------
 | Console Routes
@@ -13,6 +11,9 @@ use Illuminate\Foundation\Inspiring;
 |
 */
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->describe('Display an inspiring quote');
+Artisan::command('invite-promoter {email}', function (string $email) {
+    \App\Invitation::create([
+        'code' => \App\Facades\InvitationCode::generate(),
+        'email' => $email,
+    ])->send();
+})->describe('Invite a new promoter to create an account');

@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Billing\IPaymentGateway;
 use App\Billing\StripePaymentGateway;
+use App\Facades\InvitationCode;
 use App\HashidsTicketCodeGenerator;
 use App\IConfirmationNumberGenerator;
+use App\IInvitationCodeGenerator;
 use App\ITicketCodeGenerator;
 use App\RandomOrderConfirmationNumberGenerator;
 use Illuminate\Support\ServiceProvider;
@@ -20,9 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if ($this->app->environment('local', 'testing'))
-        {
+        if ($this->app->environment('local', 'testing')) {
             $this->app->register(DuskServiceProvider::class);
+            $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
 
         $this->app->bind(StripePaymentGateway::class, function () {
@@ -38,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IPaymentGateway::class, StripePaymentGateway::class);
         $this->app->bind(IConfirmationNumberGenerator::class, RandomOrderConfirmationNumberGenerator::class);
         $this->app->bind(ITicketCodeGenerator::class, HashidsTicketCodeGenerator::class);
+        $this->app->bind(IInvitationCodeGenerator::class, RandomOrderConfirmationNumberGenerator::class);
     }
 
     /**

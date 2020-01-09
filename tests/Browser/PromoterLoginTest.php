@@ -3,7 +3,6 @@
 
 namespace Tests\Browser;
 
-
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Auth;
@@ -58,8 +57,6 @@ class PromoterLoginTest extends DuskTestCase
      */
     public function logging_out_the_current_user()
     {
-        $this->withoutExceptionHandling();
-
         Auth::login(factory(User::class)->create());
 
         $response = $this->post('/logout');

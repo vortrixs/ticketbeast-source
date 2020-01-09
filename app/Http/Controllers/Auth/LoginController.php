@@ -12,8 +12,7 @@ class LoginController extends Controller
 {
     public function login()
     {
-        if (false === Auth::attempt(request(['email', 'password'])))
-        {
+        if (false === Auth::attempt(request(['email', 'password']))) {
             return redirect('/login')
                 ->withErrors([
                     'email' => 'These credentials do not match our records.',

@@ -19,7 +19,6 @@ Route::post('/concerts/{id}/orders', 'ConcertOrdersController@store');
 
 Route::get('orders/{confirmationNumber}', 'OrdersController@show');
 
-
 Route::group(['namespace' => 'Auth'], function () {
     Route::get('/login', 'LoginController@show')->name('login');
     Route::post('/login', 'LoginController@login');
@@ -50,4 +49,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'backstage', 'namespace' => 'B
         ->name('backstage.concert_messages.new');
     Route::post('/concerts/{id}/messages', 'ConcertMessagesController@store')
         ->name('backstage.concert_messages');
+
+    Route::get('/stripe-connect/connect', 'StripeConnectController@connect')->name('backstage.stripe.connect');
+    Route::get('/stripe-connect/authorize', 'StripeConnectController@authorizeRedirect')->name('backstage.stripe.authorize');
+    Route::get('/stripe-connect/redirect', 'StripeConnectController@redirect')->name('backstage.stripe.redirect');
 });

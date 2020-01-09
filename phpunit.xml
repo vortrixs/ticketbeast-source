@@ -6,8 +6,8 @@
          bootstrap="vendor/autoload.php"
          colors="true"
          convertErrorsToExceptions="true"
-         convertNoticesToExceptions="false"
-         convertWarningsToExceptions="false"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false">
     <testsuites>

@@ -51,10 +51,10 @@ class ConcertsController extends Controller
             'zip' => request('zip'),
             'additional_information' => request('additional_information'),
             'ticket_quantity' => request('ticket_quantity'),
-            'poster_image_path' => request('poster_image', new  NullObject)->store('posters', env('POSTER_IMAGE_FILE_STORAGE')),
+            'poster_image_path' => request('poster_image', new  NullObject)->store('posters', config('filesystems.default')),
         ]);
 
-        ConcertAdded::dispatch($concert, Storage::disk(env('POSTER_IMAGE_FILE_STORAGE')));
+        ConcertAdded::dispatch($concert, Storage::disk(config('filesystems.default')));
 
         return redirect()->route('backstage.concerts.index');
     }

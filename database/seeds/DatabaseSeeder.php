@@ -27,5 +27,10 @@ class DatabaseSeeder extends Seeder
             'additional_information' => 'For tickets, call (555) 555-5555.',
             'ticket_quantity' => 10,
         ]);
+
+        factory(\App\User::class)->create([
+            'email' => 'hanserik@sitetech.dk',
+            'password' => bcrypt('admin'),
+        ]);
     }
 }

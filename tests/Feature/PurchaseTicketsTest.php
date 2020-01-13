@@ -11,6 +11,7 @@ use App\Facades\TicketCode;
 use App\IConfirmationNumberGenerator;
 use App\Mail\OrderConfirmationEmail;
 use App\Order;
+use App\User;
 use Factories\ConcertFactory;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\TestResponse;
@@ -55,7 +56,10 @@ class PurchaseTicketsTest extends TestCase
         ConfirmationNumber::shouldReceive('generate')->andReturn('ORDER_CONFIRMATION_NUMBER_1234');
         TicketCode::shouldReceive('generateFor')->andReturn('TICKETCODE1', 'TICKETCODE2', 'TICKETCODE3');
 
-        $concert = ConcertFactory::createPublished(['ticket_price' => 3250,'ticket_quantity' => 3]);
+        $user = factory(User::class)->create(['stripe_account_id' => 'test_account_1234']);
+        $concert = ConcertFactory::createPublished(
+            ['ticket_price' => 3250,'ticket_quantity' => 3, 'user_id' => $user->id]
+        );
         $response = $this->orderTickets($concert, [
             'email' => 'foo@bar.com',
             'ticket_quantity' => 3,
@@ -76,7 +80,7 @@ class PurchaseTicketsTest extends TestCase
                 ]
             );
 
-        $this->assertEquals(9750, $this->gateway->getTotalCharges());
+        $this->assertEquals(9750, $this->gateway->getTotalChargesFor('test_account_1234'));
 
         /** @var Order $order */
         $this->assertOrderExistsFor($concert, 'foo@bar.com', $order);

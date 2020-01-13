@@ -42,7 +42,7 @@ class FakePaymentGateway implements IPaymentGateway
      *
      * @return \stdClass
      */
-    public function charge(int $amount, string $token) : Charge
+    public function charge(int $amount, string $token, string $accountId) : Charge
     {
         if (is_callable($this->beforeFirstChargeCallback)) {
             $callback = $this->beforeFirstChargeCallback;
@@ -54,7 +54,7 @@ class FakePaymentGateway implements IPaymentGateway
             throw new PaymentFailedException;
         }
 
-        return $this->addCharge($amount, $token);
+        return $this->addCharge($amount, $token, $accountId);
     }
 
 
@@ -73,13 +73,14 @@ class FakePaymentGateway implements IPaymentGateway
         return $this->charges->sum('data.amount');
     }
 
-    private function addCharge(int $amount, string $token)
+    private function addCharge(int $amount, string $token, string $accountId)
     {
         $lastCharge = $this->charges->last();
 
         $charge = new Charge([
             'amount' => $amount,
             'card_last_four' => substr($this->tokens->get($token), -4),
+            'destination' => $accountId,
         ]);
 
         $charge->id = null === $lastCharge ? 1 : $lastCharge->id+1;
@@ -87,5 +88,12 @@ class FakePaymentGateway implements IPaymentGateway
         $this->charges->add($charge);
 
         return $charge;
+    }
+
+    public function getTotalChargesFor(string $accountId)
+    {
+        return $this->charges->filter(function (Charge $charge) use ($accountId) {
+            return $charge->getDestination() === $accountId;
+        })->sum('data.amount');
     }
 }

@@ -56,13 +56,35 @@ class FakePaymentGatewayTest extends TestCase
 
         $this->gateway->beforeFirstCharge(function (FakePaymentGateway $paymentGateway) use (&$timesCallbackRan) {
             $timesCallbackRan++;
-            $paymentGateway->charge(2500, $paymentGateway->getToken($this->getTokenData()));
+            $paymentGateway->charge(
+                2500,
+                $paymentGateway->getToken($this->getTokenData()),
+                'test_account_1234'
+            );
             $this->assertEquals(2500, $paymentGateway->getTotalCharges());
         });
 
-        $this->gateway->charge(2500, $this->gateway->getToken($this->getTokenData()));
+        $this->gateway->charge(
+            2500,
+            $this->gateway->getToken($this->getTokenData()),
+            'test_account_1234'
+        );
 
         $this->assertEquals(1, $timesCallbackRan);
         $this->assertEquals(5000, $this->gateway->getTotalCharges());
+    }
+
+    /**
+     * @test
+     */
+    public function can_get_total_charges_for_a_specific_account()
+    {
+        $gateway = new FakePaymentGateway;
+
+        $gateway->charge(1000, $gateway->getToken(), 'test_account_0000');
+        $gateway->charge(2500, $gateway->getToken(), 'test_account_1234');
+        $gateway->charge(4000, $gateway->getToken(), 'test_account_1234');
+
+        $this->assertEquals(6500, $gateway->getTotalChargesFor('test_account_1234'));
     }
 }

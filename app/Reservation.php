@@ -29,9 +29,9 @@ class Reservation
         });
     }
 
-    public function complete(IPaymentGateway $gateway, string $token) : Order
+    public function complete(IPaymentGateway $gateway, string $token, string $accountId) : Order
     {
-        $charge = $gateway->charge($this->getTotalAmount(), $token);
+        $charge = $gateway->charge($this->getTotalAmount(), $token, $accountId);
 
         return Order::forTickets($this->tickets, $this->email, $charge);
     }

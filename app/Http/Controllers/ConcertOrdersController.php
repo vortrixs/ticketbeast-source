@@ -38,8 +38,16 @@ class ConcertOrdersController extends Controller
         ]);
 
         try {
-            $reservation = $concert->reserveTickets($request->get('ticket_quantity'), $request->get('email'));
-            $order       = $reservation->complete($this->paymentGateway, $request->get('payment_token'));
+            $reservation = $concert->reserveTickets(
+                $request->get('ticket_quantity'),
+                $request->get('email')
+            );
+
+            $order       = $reservation->complete(
+                $this->paymentGateway,
+                $request->get('payment_token'),
+                $concert->user->stripe_account_id
+            );
 
             Mail::to($order->email)->send(new OrderConfirmationEmail($order));
         } catch (PaymentFailedException $e) {

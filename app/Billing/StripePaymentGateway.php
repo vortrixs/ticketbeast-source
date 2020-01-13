@@ -27,13 +27,28 @@ class StripePaymentGateway implements IPaymentGateway
      *
      * @return Charge
      */
-    public function charge(int $amount, string $token) : Charge
+    public function charge(int $amount, string $token, string $accountId) : Charge
     {
         try {
             /** @var StripeCharge $stripeCharge */
-            $stripeCharge = StripeCharge::create(['amount' => $amount, 'source' => $token,'currency' => 'usd',], ['api_key' => $this->apiKey]);
+            $stripeCharge = StripeCharge::create(
+                [
+                    'amount' => $amount,
+                    'source' => $token,
+                    'currency' => 'usd',
+                    'destination' => [
+                        'account' => $accountId,
+                        'amount' => $amount * .9,
+                    ]
+                ],
+                ['api_key' => $this->apiKey]
+            );
 
-            return new Charge(['amount' => $stripeCharge->amount, 'card_last_four' => $stripeCharge->source->last4]);
+            // destination => ['amount', 'account']
+
+            return new Charge(
+                ['amount' => $stripeCharge->amount, 'card_last_four' => $stripeCharge->source->last4, 'destination' => $accountId]
+            );
         } catch (InvalidRequestException $e) {
             throw new PaymentFailedException;
         }

@@ -19,4 +19,9 @@ class Charge
     {
         return $this->data['amount'];
     }
+
+    public function getDestination()
+    {
+        return $this->data['destination'];
+    }
 }

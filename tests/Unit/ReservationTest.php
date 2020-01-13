@@ -64,11 +64,11 @@ class ReservationTest extends TestCase
         $reservation = new Reservation($tickets, 'foo@bar.com');
 
         /** @var Order $order */
-        $order = $reservation->complete($paymentGateway, $paymentGateway->getToken());
+        $order = $reservation->complete($paymentGateway, $paymentGateway->getToken(), 'test_account_1234');
 
         $this->assertOrderExistsFor($concert, $order->email);
         $this->assertEquals(3, $order->tickets()->count());
         $this->assertEquals(3600, $order->amount);
-        $this->assertEquals(3600, $paymentGateway->getTotalCharges());
+        $this->assertEquals(3600, $paymentGateway->getTotalChargesFor('test_account_1234'));
     }
 }

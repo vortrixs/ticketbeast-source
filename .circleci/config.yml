@@ -11,7 +11,7 @@ jobs:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
-      - run: sudo docker-php-ext-install zip bc gd
+      - run: sudo docker-php-ext-install zip bcmath gd
       - run: composer install -n --prefer-dist
       - run: touch database/database.sqlite
 
@@ -23,7 +23,7 @@ jobs:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
-      - run: sudo docker-php-ext-install zip bc gd
+      - run: sudo docker-php-ext-install zip bcmath gd
       - run: composer install -n --prefer-dist
       - run: npm install
       - run: touch database/database.sqlite

@@ -11,20 +11,21 @@ jobs:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
-      - run: sudo docker-php-ext-install zip
+      - run: sudo docker-php-ext-install zip bc gd
       - run: composer install -n --prefer-dist
       - run: touch database/database.sqlite
 
       - run: ./vendor/bin/phpunit
   dusk:
     docker:
-      - image: circleci/php:7.1-node-browsers
+      - image: circleci/php:7.2-node-browsers
     steps:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
-      - run: sudo docker-php-ext-install zip
+      - run: sudo docker-php-ext-install zip bc gd
       - run: composer install -n --prefer-dist
+      - run: npm install
       - run: touch database/database.sqlite
 
       - run:

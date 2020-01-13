@@ -15,8 +15,12 @@ jobs:
       - run: sudo docker-php-ext-install zip bcmath gd
       - run: composer install -n --prefer-dist
       - run: touch database/database.sqlite
+      - run: mkdir test_results/
 
-      - run: ./vendor/bin/phpunit
+      - run: ./vendor/bin/phpunit --coverage-xml test_results/
+
+      - store_test_results:
+          path: test_results/
   dusk:
     docker:
       - image: circleci/php:7.2-node-browsers
@@ -34,6 +38,7 @@ jobs:
           command: php artisan serve
           background: true
 
+      - run: php artisan dusk:chrome-driver
       - run: php artisan dusk
 workflows:
   version: 2

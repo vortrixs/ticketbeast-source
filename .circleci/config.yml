@@ -11,6 +11,8 @@ jobs:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
+      - run: sudo apt install libpng-dev
+      - run: sudo docker-php-ext-configure bcmath gd
       - run: sudo docker-php-ext-install zip bcmath gd
       - run: composer install -n --prefer-dist
       - run: touch database/database.sqlite
@@ -23,6 +25,8 @@ jobs:
       - checkout
       - run: mv .env.example .env
       - run: sudo apt update
+      - run: sudo apt install libpng-dev
+      - run: sudo docker-php-ext-configure bcmath gd
       - run: sudo docker-php-ext-install zip bcmath gd
       - run: composer install -n --prefer-dist
       - run: npm install

@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     public function register(Request $request)
     {
-        $invitation = Invitation::findByCode(request('code'));
+        $invitation = Invitation::findByCode($request->get('code'));
 
         abort_if($invitation->hasBeenUsed(), Response::HTTP_NOT_FOUND);
 
@@ -22,10 +22,7 @@ class RegisterController extends Controller
             'password' => 'required',
         ]);
 
-        $user = User::create([
-            'email' => request('email'),
-            'password' => bcrypt(request('password')),
-        ]);
+        $user = User::create($request->only(['email', 'password']));
 
         $invitation->useForUser($user);
 

@@ -20,7 +20,9 @@ $factory->define(Concert::class, function (Faker $faker) {
         'zip' => '90210',
         'additional_information' => 'Some sample additional information.',
         'ticket_quantity' => 5,
-        'user_id' => function () { return factory(User::class)->create()->id; },
+        'user_id' => function () {
+            return factory(User::class)->create()->id;
+        },
     ];
 });
 

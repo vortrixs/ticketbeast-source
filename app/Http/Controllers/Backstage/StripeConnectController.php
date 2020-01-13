@@ -28,13 +28,13 @@ class StripeConnectController extends Controller
         return redirect($url);
     }
 
-    public function redirect()
+    public function redirect(Request $request)
     {
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $response = OAuth::token([
             'grant_type' => 'authorization_code',
-            'code' => request()->query('code'),
+            'code' => $request->query('code'),
         ]);
 
         Auth::user()->update([

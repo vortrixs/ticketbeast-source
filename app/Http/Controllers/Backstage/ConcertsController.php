@@ -7,6 +7,7 @@ use App\Events\ConcertAdded;
 use App\Http\Controllers\Controller;
 use App\NullObject;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -23,9 +24,9 @@ class ConcertsController extends Controller
         return view('backstage.concerts.create');
     }
 
-    public function store()
+    public function store(Request $request)
     {
-        $this->validate(request(), [
+        $request->validate([
             'title' => 'required',
             'date' => 'required|date',
             'time' => 'required|date_format:g:iA',
@@ -39,20 +40,26 @@ class ConcertsController extends Controller
             'poster_image' => 'nullable|image|dimensions:min_width=600,ratio=8.5/11',
         ]);
 
-        $concert = Auth::user()->concerts()->create([
-            'title' => request('title'),
-            'subtitle' => request('subtitle'),
-            'date' => Carbon::parse(vsprintf('%s %s', [request('date'), request('time')])),
-            'ticket_price' => request('ticket_price')*100,
-            'venue' => request('venue'),
-            'venue_address' => request('venue_address'),
-            'city' => request('city'),
-            'state' => request('state'),
-            'zip' => request('zip'),
-            'additional_information' => request('additional_information'),
-            'ticket_quantity' => request('ticket_quantity'),
-            'poster_image_path' => request('poster_image', new  NullObject)->store('posters', config('filesystems.default')),
-        ]);
+        $concert = Auth::user()->concerts()->create(
+            array_merge(
+                $request->only(
+                    'title',
+                    'subtitle',
+                    'venue',
+                    'venue_address',
+                    'city',
+                    'state',
+                    'zip',
+                    'additional_information',
+                    'ticket_quantity'
+                ),
+                [
+                    'ticket_price' => $request->get('ticket_price')*100,
+                    'date' => $request->only('date', 'time'),
+                    'poster_image_path' => $request->file('poster_image', new NullObject)
+                ]
+            )
+        );
 
         ConcertAdded::dispatch($concert, Storage::disk(config('filesystems.default')));
 
@@ -68,24 +75,24 @@ class ConcertsController extends Controller
         ]);
     }
 
-    public function edit(int $concertId)
+    public function edit(int $id)
     {
         /** @var Concert $concert */
-        $concert = Auth::user()->concerts()->findOrFail($concertId);
+        $concert = Auth::user()->concerts()->findOrFail($id);
 
         abort_if($concert->isPublished(), Response::HTTP_FORBIDDEN);
 
         return view('backstage.concerts.edit', ['concert' => $concert]);
     }
 
-    public function update(int $concertId)
+    public function update(Request $request, int $id)
     {
         /** @var Concert $concert */
-        $concert = Auth::user()->concerts()->findOrFail($concertId);
+        $concert = Auth::user()->concerts()->findOrFail($id);
 
         abort_if($concert->isPublished(), Response::HTTP_FORBIDDEN);
 
-        $this->validate(request(), [
+        $request->validate([
             'title' => 'required',
             'date' => 'required|date',
             'time' => 'required|date_format:g:iA',
@@ -98,19 +105,25 @@ class ConcertsController extends Controller
             'ticket_quantity' => 'required|integer|min:1',
         ]);
 
-        $concert->update([
-            'title' => request('title'),
-            'subtitle' => request('subtitle'),
-            'date' => Carbon::parse(vsprintf('%s %s', [request('date'), request('time')])),
-            'ticket_price' => request('ticket_price')*100,
-            'venue' => request('venue'),
-            'venue_address' => request('venue_address'),
-            'city' => request('city'),
-            'state' => request('state'),
-            'zip' => request('zip'),
-            'additional_information' => request('additional_information'),
-            'ticket_quantity' => request('ticket_quantity'),
-        ]);
+        $concert->update(
+            array_merge(
+                $request->only(
+                    'title',
+                    'subtitle',
+                    'venue',
+                    'venue_address',
+                    'city',
+                    'state',
+                    'zip',
+                    'additional_information',
+                    'ticket_quantity'
+                ),
+                [
+                    'ticket_price' => $request->get('ticket_price')*100,
+                    'date' => $request->only('date', 'time')
+                ]
+            )
+        );
 
         return redirect()->route('backstage.concerts.index');
     }

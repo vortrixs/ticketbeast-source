@@ -10,6 +10,7 @@ use App\Mail\OrderConfirmationEmail;
 use App\Order;
 use App\Reservation;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Mail;
 
@@ -25,20 +26,20 @@ class ConcertOrdersController extends Controller
         $this->paymentGateway = $paymentGateway;
     }
 
-    public function store(int $concertId) : JsonResponse
+    public function store(Request $request, int $id) : JsonResponse
     {
         /** @var Concert $concert */
-        $concert = Concert::published()->findOrFail($concertId);
+        $concert = Concert::published()->findOrFail($id);
 
-        $this->validate(request(), [
+        $request->validate([
             'email' => 'required|email',
             'ticket_quantity' => 'required|gte:1',
             'payment_token' => 'required'
         ]);
 
         try {
-            $reservation = $concert->reserveTickets(request('ticket_quantity'), request('email'));
-            $order       = $reservation->complete($this->paymentGateway, request('payment_token'));
+            $reservation = $concert->reserveTickets($request->get('ticket_quantity'), $request->get('email'));
+            $order       = $reservation->complete($this->paymentGateway, $request->get('payment_token'));
 
             Mail::to($order->email)->send(new OrderConfirmationEmail($order));
         } catch (PaymentFailedException $e) {

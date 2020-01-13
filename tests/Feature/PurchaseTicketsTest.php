@@ -48,6 +48,8 @@ class PurchaseTicketsTest extends TestCase
      */
     public function customer_can_purchase_tickets_to_a_published_concert()
     {
+        $this->withoutExceptionHandling();
+
         Mail::fake();
 
         ConfirmationNumber::shouldReceive('generate')->andReturn('ORDER_CONFIRMATION_NUMBER_1234');

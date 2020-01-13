@@ -15,6 +15,24 @@ class Concert extends Model
 
     protected $dates = ['date'];
 
+    public function setDateAttribute($value)
+    {
+        if (is_array($value)) {
+            $value = vsprintf('%s %s', $value);
+        }
+
+        $this->attributes['date'] = Carbon::parse($value);
+    }
+
+    public function setPosterImagePathAttribute($value)
+    {
+        if (is_object($value)) {
+            $value = $value->store('posters', config('filesystems.default'));
+        }
+
+        $this->attributes['poster_image_path'] = $value;
+    }
+
     public function orders()
     {
         return Order::whereIn('id', $this->tickets()->pluck('order_id'));

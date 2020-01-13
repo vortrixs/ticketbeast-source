@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backstage;
 use App\Concert;
 use App\Http\Controllers\Controller;
 use App\Jobs\SendAttendeeMessage;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ConcertMessagesController extends Controller
@@ -16,17 +17,17 @@ class ConcertMessagesController extends Controller
         return view('backstage.concert_messages.new', ['concert' => $concert]);
     }
 
-    public function store(int $concertId)
+    public function store(Request $request, int $id)
     {
         /** @var Concert $concert */
-        $concert = Auth::user()->concerts()->findOrFail($concertId);
+        $concert = Auth::user()->concerts()->findOrFail($id);
 
-        $this->validate(request(), [
+        $request->validate([
             'subject' => 'required',
             'message' => 'required',
         ]);
 
-        $message = $concert->attendeeMessages()->create(request(['subject', 'message']));
+        $message = $concert->attendeeMessages()->create($request->only(['subject', 'message']));
 
         SendAttendeeMessage::dispatch($message);
 

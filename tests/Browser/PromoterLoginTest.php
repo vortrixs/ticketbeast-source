@@ -20,7 +20,7 @@ class PromoterLoginTest extends DuskTestCase
     {
         factory(User::class)->create([
             'email' => 'foo@bar.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
         ]);
 
         $this->browse(function (Browser $browser) {
@@ -39,7 +39,7 @@ class PromoterLoginTest extends DuskTestCase
     {
         factory(User::class)->create([
             'email' => 'foo@bar.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
         ]);
 
         $this->browse(function (Browser $browser) {

@@ -3,7 +3,6 @@
 
 namespace Tests\Feature\Backstage;
 
-
 use App\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Auth;
@@ -20,7 +19,7 @@ class PromoterLoginTest extends TestCase
     {
         $user = factory(User::class)->create([
             'email' => 'foo@bar.com',
-            'password' => bcrypt('password'),
+            'password' => 'password',
         ]);
 
         $response = $this->post('/login', [
@@ -40,7 +39,7 @@ class PromoterLoginTest extends TestCase
     {
         factory(User::class)->create([
             'email' => 'foo@bar.com',
-            'password' => bcrypt('wrong-password'),
+            'password' => 'wrong-password',
         ]);
 
         $response = $this->post('/login', [

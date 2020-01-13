@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
 
         factory(\App\User::class)->create([
             'email' => 'hanserik@sitetech.dk',
-            'password' => bcrypt('admin'),
+            'password' => 'admin',
         ]);
     }
 }

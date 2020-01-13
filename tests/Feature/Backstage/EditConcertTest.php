@@ -3,7 +3,6 @@
 
 namespace Tests\Feature\Backstage;
 
-
 use App\Concert;
 use App\User;
 use Carbon\Carbon;

@@ -1,0 +1,40 @@
+# PHP CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-php/ for more details
+#
+version: 2
+jobs:
+  tests:
+    docker:
+      - image: circleci/php:7.1-node-browsers
+    steps:
+      - checkout
+      - run: mv .env.example .env
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run: composer install -n --prefer-dist
+      - run: touch database/database.sqlite
+
+      - run: ./vendor/bin/phpunit
+  dusk:
+    docker:
+      - image: circleci/php:7.1-node-browsers
+    steps:
+      - checkout
+      - run: mv .env.example .env
+      - run: sudo apt update
+      - run: sudo docker-php-ext-install zip
+      - run: composer install -n --prefer-dist
+      - run: touch database/database.sqlite
+
+      - run:
+          command: php artisan serve
+          background: true
+
+      - run: php artisan dusk
+workflow:
+  version: 2
+  laravel-tests:
+    jobs:
+      - tests
+      - dusk
